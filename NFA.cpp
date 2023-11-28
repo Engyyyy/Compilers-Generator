@@ -221,7 +221,3 @@ void NFA::updateNumStates(int from, int to)
     numStates = max(numStates, max(from, to) + 1);
 }
 
-int main()
-{
-    return 0;
-}
