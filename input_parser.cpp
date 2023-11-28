@@ -6,20 +6,11 @@
 #include <map>
 #include <assert.h>
 
+#include "input_parser.h"
 #include "NFA.h"
 
 using namespace std;
-
-class InputParser {
-public:
-	string inPath;
-	set<char> alphabet;
-	map<char, int> precedence = { { '|', 1 }, { ' ', 2 }, { '*', 3 },
-			{ '+', 3 } };
-	set<string> operators = { "|", " ", "*", "+", "-" };
-	map<string, NFA*> basicExps;
-	map<string, string> regDefs;
-	string removeSpaces(string inStr) {
+	string InputParser::removeSpaces(string inStr) {
 		string outStr = "";
 		for (auto ch : inStr) {
 			if (ch == ' ')
@@ -29,7 +20,7 @@ public:
 		return outStr;
 	}
 
-	vector<string> tokenize(string regDef) {
+	vector<string>InputParser::tokenize(string regDef) {
 		int regDefLen = regDef.size();
 		vector<string> tokens;
 		string currToken = "", validToken = "";
@@ -70,7 +61,7 @@ public:
 	return tokens;
 }
 
-	vector<string> transformToCanonicalReg(vector<string> tokens) {
+	vector<string>InputParser::transformToCanonicalReg(vector<string> tokens) {
 		vector<string> canonicalTokens;
 		int tokensLen = tokens.size();
 		for(int i = 0; i < tokensLen; i++) {
@@ -102,9 +93,10 @@ public:
 	}
 
 
-	NFA buildNFA(vector<string> tokens) {
+	NFA InputParser::buildNFA(vector<string> tokens) {
 		stack<string> operatorsStack;
 		stack<NFA> operandsStack;
+		NFA nfa;
 
 		for(auto token : tokens) {
 			if(operators.count(token)) {
@@ -119,9 +111,10 @@ public:
 				operandsStack.push(nfa);
 			}
 		}
+		return nfa;
 	}
 
-    void handleRegDef(string line, int equalIdx)
+    void InputParser::handleRegDef(string line, int equalIdx)
     {
         string name = line.substr(0, equalIdx);
         string regDef = line.substr(equalIdx + 1);
@@ -130,12 +123,11 @@ public:
         vector<string> tokens = transformToCanonicalReg(tokenize(regDef));
     }
 
-public:
-InputParser(string inputPath)
+InputParser::InputParser(string inputPath)
 {
 	inPath = inputPath;
 }
-void parse() {
+void InputParser::parse() {
         string regex;
         ifstream inFile(inPath);
         getline(inFile, regex);
@@ -159,7 +151,6 @@ void parse() {
 	         throw runtime_error("line number " + to_string(lineNum) + " is neither a regular definition nor a regular expression");
 	     }
 }
-};
 
 int main() {
 InputParser parser("input.txt");
