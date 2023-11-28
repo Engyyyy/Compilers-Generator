@@ -4,6 +4,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include <assert.h>
 
 #include "NFA.h"
 
@@ -13,7 +14,7 @@ class InputParser {
 public:
 	string inPath;
 	set<char> alphabet;
-	map<char, int> priorityMap = { { '|', 1 }, { ' ', 2 }, { '*', 3 },
+	map<char, int> precedence = { { '|', 1 }, { ' ', 2 }, { '*', 3 },
 			{ '+', 3 } };
 	set<string> operators = { "|", " ", "*", "+", "-" };
 	map<string, NFA*> basicExps;
@@ -100,6 +101,26 @@ public:
 		return canonicalTokens;
 	}
 
+
+	NFA buildNFA(vector<string> tokens) {
+		stack<string> operatorsStack;
+		stack<NFA> operandsStack;
+
+		for(auto token : tokens) {
+			if(operators.count(token)) {
+				if (operatorsStack.empty() || precedence[token] > precedence[operatorsStack.top()]) operatorsStack.push(token);
+			}
+			else if(!regDefs[token].empty()) { // regular definition
+				operandsStack.push(*basicExps[token]);
+			}
+			else { // alphabet symbol
+				NFA nfa;
+				nfa.addTransition(0, 1, token[0]);
+				operandsStack.push(nfa);
+			}
+		}
+	}
+
     void handleRegDef(string line, int equalIdx)
     {
         string name = line.substr(0, equalIdx);
@@ -107,27 +128,6 @@ public:
         regDefs[name] = regDef;
 
         vector<string> tokens = transformToCanonicalReg(tokenize(regDef));
-        for (auto token : tokens)
-            cout << token << endl;
-        // stack<char> operandsStack, operatorsStack;
-
-        // for (auto ch : regDef)
-        // {
-        //     if (operators.count(ch))
-        //     {
-        //         if (operatorsStack.empty() || priorityMap[ch] > priorityMap[operatorsStack.top()])
-        //             operandsStack.push(ch);
-        //         else
-        //         { /* evaluate NFA */
-        //         }
-        //     }
-        //     else
-        //     {
-        //         operandsStack.push(ch);
-        //     }
-        // }
-
-        // cout << regDef;
     }
 
 public:
