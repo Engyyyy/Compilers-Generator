@@ -127,7 +127,7 @@ public:
     }
 
     void concatenate(NFA& other) {
-        int offset = numStates - 1; // Store the current total number of states excluding the duplicated state
+        int offset = numStates - 2; // Store the current total number of states excluding the duplicated state
 
         // Merge transitions from the 'other' NFA to this NFA
         for (const auto& transition : other.stateTransitions) {
@@ -160,35 +160,50 @@ public:
         numStates += other.numStates - (other.numStates > 0 ? 1 : 0); // Update the total number of states, excluding the duplicated state
     }
 
+    static NFA Or(const NFA& nfa1, const NFA& nfa2) {
+        NFA result;
 
-    void Or(NFA& other) {
-        int offset = numStates; // Store the current total number of states for the first NFA
-        int newFinalState = numStates + other.numStates; // New final state for both NFAs
-        numStates = newFinalState ; // Update total number of states
+        // Add a new start state
+        int newStartState = 0;
+        result.addEpsilonTransition(newStartState, 1); // Connect to the start state of the first NFA
+        result.addEpsilonTransition(newStartState, nfa1.stateTransitions.size() + 2); // Connect to the start state of the second NFA
 
-        // Connect the final states of both NFAs to the new final state via epsilon transitions
-        addEpsilonTransition(offset - 1, newFinalState); // Connect first NFA's final state to new final state
-        addEpsilonTransition(other.numStates + offset - 1, newFinalState); // Connect second NFA's final state to new final state
+        // Merge transitions from the first NFA
+        for (const auto& transition : nfa1.stateTransitions) {
+            result.stateTransitions[transition.first] = transition.second;
+        }
 
-        // Merge transitions from 'other' NFA to this NFA
-        for (const auto& transition : other.stateTransitions) {
-            int from = transition.first + offset;
-            for (const auto& pair : transition.second) {
-                int to = pair.first + offset;
-                char input = pair.second;
-                addTransition(from, to, input); // Add transitions from 'other' NFA
+        // Merge transitions from the second NFA
+        int offset = nfa1.stateTransitions.size() + 1;
+        for (const auto& transition : nfa2.stateTransitions) {
+            vector<pair<int, char>> adjustedTransitions;
+            for (const auto& trans : transition.second) {
+                adjustedTransitions.emplace_back(trans.first + offset, trans.second);
+            }
+            result.stateTransitions[transition.first + offset] = adjustedTransitions;
+        }
+
+        // Merge epsilon transitions from the first NFA
+        for (const auto& epsilonTransition : nfa1.epsilonTransitions) {
+            for (const auto& toState : epsilonTransition.second) {
+                result.addEpsilonTransition(epsilonTransition.first + 1, toState + 1);
             }
         }
 
-        // Merge epsilon transitions from 'other' NFA to this NFA
-        for (const auto& transition : other.epsilonTransitions) {
-            int from = transition.first + offset;
-            for (int to : transition.second) {
-                addEpsilonTransition(from, to + offset); // Adjust the 'to' state by the offset
+        // Merge epsilon transitions from the second NFA
+        for (const auto& epsilonTransition : nfa2.epsilonTransitions) {
+            for (const auto& toState : epsilonTransition.second) {
+                result.addEpsilonTransition(epsilonTransition.first + offset, toState + offset);
             }
         }
+
+        // Create a new final state and connect it to the final states of both NFAs via epsilon transitions
+        int newFinalState = nfa1.stateTransitions.size() + nfa2.stateTransitions.size() + 3;
+        result.addEpsilonTransition(nfa1.stateTransitions.size() + 1, newFinalState); // Connect to the final state of the first NFA
+        result.addEpsilonTransition(nfa1.stateTransitions.size() + offset + 1, newFinalState); // Connect to the final state of the second NFA
+
+        return result;
     }
-
 
 
     // Getters for accessing NFA components
@@ -224,80 +239,49 @@ private:
 
 
 int main() {
-    NFA nfa;
+    // Create NFAs and add transitions
+    NFA nfa1, nfa2;
 
-    // Define transitions
-    nfa.addTransition(0, 1, 'a');
-    nfa.addTransition(1, 2, 'b');
-    nfa.addTransition(2, 3, 'c');
-    // ... add more transitions as needed
+    nfa1.addTransition(1, 2, 'a');
+    nfa1.addTransition(2, 3, 'b');
+    nfa1.addTransition(3, 4, 'c');
+    nfa1.addTransition(4, 5, 'd');
+    nfa1.setStatePriority(5, 1);
 
-    // Set priorities for states
-    nfa.setStatePriority(3, 1); // Mark state 3 as a final state with priority 1
-
-    // Apply positive closure
-    nfa.kleeneClosure();
-
-    // Retrieve and display the resulting transitions after positive closure
-    cout << "Transitions after kleene closure:\n";
-    map<int, vector<pair<int, char>>> transitions = nfa.getStateTransitions();
-    map<int, vector<int>> epsilonTransitions = nfa.getEpsilonTransitions();
-
-    for (const auto& transition : transitions) {
-        int from = transition.first;
-        for (const auto& pair : transition.second) {
-            int to = pair.first;
-            char input = pair.second;
-            cout << "state " << from << " --" << input << "--> : " << to << "\n";
-        }
-    }
-
-    // Display epsilon transitions
-    cout << "\nEpsilon transitions after positive closure:\n";
-    for (const auto& epsilon : epsilonTransitions) {
-        int from = epsilon.first;
-        for (int to : epsilon.second) {
-            cout << "state " << from << "-- epsilon --> " << ": " << to << "\n";
-        }
-    }
-
-    cout << "--------------------------------------------------------";
-    // Create another NFA
-    NFA nfa2;
-
-    // Define transitions for the second NFA
-    nfa2.addTransition(0, 1, 'd');
     nfa2.addTransition(1, 2, 'e');
     nfa2.addTransition(2, 3, 'f');
-    // ... add more transitions as needed
+    nfa2.addTransition(3, 4, 'g');
+    nfa2.addTransition(4, 5, 'h');
+    nfa2.setStatePriority(5, 2);
 
-    // Concatenate the first NFA with the second one
-    nfa.Or(nfa2);
+    //Test OR operation between NFAs
+    NFA result = NFA::Or(nfa1, nfa2);
 
-    // Display the resulting transitions after concatenation
-    cout << "\nTransitions after union:\n";
-    transitions = nfa.getStateTransitions();
-    epsilonTransitions = nfa.getEpsilonTransitions();
 
+    // Retrieve and print transitions of the resulting NFA
+    auto transitions = result.getStateTransitions();
+    cout << "Transitions:" << endl;
     for (const auto& transition : transitions) {
-        int from = transition.first;
+        int fromState = transition.first;
         for (const auto& pair : transition.second) {
-            int to = pair.first;
+            int toState = pair.first;
             char input = pair.second;
-            cout << "state " << from << " --" << input << "--> : " << to << "\n";
+            cout << "Transition: State " << fromState << " --(" << input << ")--> State " << toState << endl;
         }
     }
 
-    // Display epsilon transitions after concatenation
-    cout << "\nEpsilon transitions after union:\n";
-    for (const auto& epsilon : epsilonTransitions) {
-        int from = epsilon.first;
-        for (int to : epsilon.second) {
-            cout << "state " << from << "-- epsilon --> " << ": " << to << "\n";
+    cout << "*******************************************************************" << endl;
+
+    // Retrieve and print epsilon transitions of the resulting NFA
+    auto epsilonTransitions = result.getEpsilonTransitions();
+    cout << "Epsilon Transitions:" << endl;
+    for (const auto& epsilonTransition : epsilonTransitions) {
+        int fromState = epsilonTransition.first;
+        for (int toState : epsilonTransition.second) {
+            cout << "Epsilon Transition: State " << fromState << " --(epsilon)--> State " << toState << endl;
         }
     }
 
     return 0;
 }
-
 
