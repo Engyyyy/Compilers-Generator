@@ -152,7 +152,7 @@ void InputParser::parse() {
 	     }
 }
 
-//int main() {
-//InputParser parser("input.txt");
-//parser.parse();
-//}
+int main() {
+InputParser parser("input.txt");
+parser.parse();
+}
