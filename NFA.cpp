@@ -8,17 +8,22 @@ using namespace std;
 
 class NFA {
 private:
-    const char epsilon = '\0'; // Define epsilon as an empty character
     map<int, vector<pair<int, char>>> stateTransitions; // Map of state number to other states with input
     map<int, vector<int>> epsilonTransitions; // Epsilon transitions
     set<char> alphabet; // String alphabet
     map<int, int> statePriorities; // Map of state number to priority
     map<int, string> priorityStrings; // Map of priority number to the string
-    int startState = 0 , endState = 0;
-
+    // 0 --> keyWord
+    // 1 --> pun
+    int startState = 0 , endState = 0 ;
+    int priority = -1 ;
 
 public:
-    void addSympol(char input){
+    void setPriority(int p){
+        priority = p;
+    }
+
+    void addSympol(char input  ){
         stateTransitions[0].push_back(make_pair(1, input)); // Add transition with input symbol
         endState=1;
     }
@@ -34,40 +39,42 @@ public:
         epsilonTransitions[from].push_back(to); // Add epsilon transition
     }
 
-    void positiveClosure() {
-        addEpsilonTransition(endState,startState);
+    static NFA positiveClosure(NFA& nfa1) {
+        nfa1.addEpsilonTransition(nfa1.endState,nfa1.startState);
+        return nfa1;
     }
 
     // Function to apply Kleene closure operation
-    void kleeneClosure() {
-        addEpsilonTransition(startState,endState);
-        addEpsilonTransition(endState,startState);
+    static NFA kleeneClosure(NFA& nfa1) {
+        nfa1.addEpsilonTransition(nfa1.startState,nfa1.endState);
+        nfa1.addEpsilonTransition(nfa1.endState,nfa1.startState);
+        return nfa1;
     }
 
-    void concatenate(NFA& other) {
+    static NFA concatenate(NFA& nfa1,  NFA& nfa2) {
         map<int,int> m ;
-        m[other.startState] = endState ;
-        for(int i = other.startState+1 ; i<=other.endState ; i++) m[i] = m[i-1] + 1 ;
+        m[nfa2.startState] = nfa1.endState ;
+        for(int i = nfa2.startState+1 ; i<=nfa2.endState ; i++) m[i] = m[i-1] + 1 ;
 
         // Merge transitions from the 'other' NFA to this NFA
-        for (const auto& transition : other.stateTransitions) {
+        for (const auto& transition : nfa2.stateTransitions) {
             int from = m[transition.first]; // Adjust the 'from' state by the offset
             for (const auto& pair : transition.second) {
                 int to = m[pair.first]; // Adjust the 'to' state by the offset
                 char input = pair.second;
-                addTransition(from, to, input); // Add transitions from 'other' NFA
+                nfa1.addTransition(from, to, input); // Add transitions from 'other' NFA
             }
         }
 
         // Merge epsilon transitions from 'other' NFA to this NFA
-        for (const auto& transition : other.epsilonTransitions) {
+        for (const auto& transition : nfa2.epsilonTransitions) {
             int from = m[transition.first]; // Adjust the 'from' state by the offset
             for (int to : transition.second) {
-                addEpsilonTransition(from, m[to]); // Adjust the 'to' state by the offset
+                nfa1.addEpsilonTransition(from, m[to]); // Adjust the 'to' state by the offset
             }
         }
-        endState = m[other.endState];
-
+        nfa1.endState = m[nfa2.endState];
+        return nfa1;
     }
 
     static NFA Or( NFA& nfa1,  NFA& nfa2) {
@@ -127,7 +134,9 @@ public:
         return result;
     }
 
-
+    map<int, int> getStatePriorities() const {
+        return statePriorities;
+    }
     // Getters for accessing NFA components
     map<int, vector<pair<int, char>>> getStateTransitions() const {
         return stateTransitions;
@@ -140,14 +149,65 @@ public:
         return alphabet;
     }
 
-    const map<int, int> getStatePriorities() const {
-        return statePriorities;
-    }
 
     const map<int, string> getPriorityStrings() const {
         return priorityStrings;
     }
 
+
+
+    static NFA combine( vector<NFA> vec) {
+        vector<map<int,int>> m;
+        NFA result;
+        map<int,int> curr ;
+        curr[vec[0].startState]=1;
+        m.push_back(curr) ;
+        for(int j = 0 ; j<vec.size();j++){
+            for(int i = vec[j].startState+1 ; i<=vec[j].endState ; i++) m[j][i] = m[j][i-1] + 1 ;
+            if(j!=vec.size()-1){
+                map<int,int> curr2 ;
+                curr2[vec[j+1].startState] = m[j][vec[j].endState]+1;
+                m.push_back(curr2);
+            }
+        }
+
+        // Add a new start state
+        int newStartState = 0;
+        for(int j = 0 ; j<vec.size();j++){
+            result.addEpsilonTransition(newStartState, m[j][vec[j].startState]); // Connect to the start state of each NFA
+
+        }
+
+
+        for(int j = 0 ; j<vec.size();j++){
+            for (const auto& transition : vec[j].stateTransitions) {
+                int from = m[j][transition.first]; // Adjust the 'from' state by the offset
+                for (const auto& pair : transition.second) {
+                    int to = m[j][pair.first]; // Adjust the 'to' state by the offset
+                    char input = pair.second;
+                    result.addTransition(from, to, input); // Add transitions from 'other' NFA
+                }
+            }
+
+            // Merge epsilon transitions from 'other' NFA to this NFA
+            for (const auto& transition : vec[j].epsilonTransitions) {
+                int from = m[j][transition.first]; // Adjust the 'from' state by the offset
+                for (int to : transition.second) {
+                    result.addEpsilonTransition(from, m[j][to]); // Adjust the 'to' state by the offset
+                }
+            }
+        }
+        // assign final states with their priorities
+        for(int j = 0 ; j<vec.size();j++){
+            int state , pri ;
+            state=m[j][vec[j].endState];
+            pri=vec[j].priority;
+            result.statePriorities.insert(make_pair(state,pri));
+        }
+
+        result.startState=0;
+        return result;
+    }
 
 };
 
@@ -166,15 +226,24 @@ int main() {
     nfa8.addSympol('h');
     nfa9.addSympol('z');
     nfa10.addSympol('y');
-    nfa1.concatenate(nfa2);
-    nfa1.concatenate(nfa3);
-    nfa1.concatenate(nfa4);
-    nfa5.concatenate(nfa6);
-    nfa5.concatenate(nfa7);
-    nfa5.concatenate(nfa8);
-    nfa9.concatenate(nfa10);
-    NFA res2 = NFA::Or(nfa1,nfa5);
-    NFA res = NFA::Or(res2,nfa9);
+    NFA res1 = NFA::concatenate(nfa1,nfa2);
+    NFA res2=NFA::concatenate(res1,nfa3);
+    NFA res3=NFA::concatenate(res2,nfa4);
+    NFA res4=NFA::concatenate(nfa5,nfa6);
+    NFA res5=NFA::concatenate(res4,nfa7);
+    NFA res6=NFA::concatenate(res5,nfa8);
+    NFA res7=NFA::concatenate(nfa9,nfa10);
+    res3.setPriority(1);
+    res6.setPriority(2);
+    res7.setPriority(3);
+    NFA res = NFA::combine({res3,res6,res7});
+    cout << "priority:" << endl;
+    auto priorities = res.getStatePriorities();
+    for (const auto&priority  : priorities) {
+        int fromState = priority.first;
+        cout <<  fromState << " " << priority.second << endl;
+
+    }
 
     // Retrieve and print transitions of the resulting NFA
     auto transitions = res.getStateTransitions();
@@ -188,7 +257,7 @@ int main() {
         }
     }
 
-    cout << "***************************************************************" << endl;
+    cout << "***********************" << endl;
 
     // Retrieve and print epsilon transitions of the resulting NFA
     auto epsilonTransitions = res.getEpsilonTransitions();
