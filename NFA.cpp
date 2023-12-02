@@ -274,13 +274,13 @@ public:
     }
     map<pair<int,char>,set<int>> getNfaTransitions() const {
         map<pair<int,char>,set<int>> NfaTransitions;
-        for (pair ele : stateTransitions ){
+        for (const auto ele : stateTransitions ){
             int s = ele.first;
             for (pair p : ele.second ){
                 NfaTransitions[make_pair(s,p.second)].insert(p.first);
             }
         }
-        for (pair ele : epsilonTransitions ){
+        for (const auto ele : epsilonTransitions ){
             int s = ele.first;
             for (int p : ele.second ){
                 NfaTransitions[make_pair(s,'\0')].insert(p);
@@ -292,68 +292,69 @@ public:
 };
 
 
-int main() {
-
-    NFA nfa1, nfa2, nfa3, nfa4, nfa5, nfa6, nfa7, nfa8, nfa9, nfa10;
-
-    nfa1.addSympol('a');
-    nfa2.addSympol('b');
-    nfa3.addSympol('c');
-    nfa4.addSympol('d');
-    nfa5.addSympol('e');
-    nfa6.addSympol('f');
-    nfa7.addSympol('g');
-    nfa8.addSympol('h');
-    nfa9.addSympol('z');
-    nfa10.addSympol('y');
-//    NFA res1 = NFA::concatenate(nfa1,nfa2);
-//    NFA res2=NFA::concatenate(res1,nfa3);
-//    NFA res3=NFA::concatenate(res2,nfa4);
-//    NFA res4=NFA::concatenate(nfa5,nfa6);
-//    NFA res5=NFA::concatenate(res4,nfa7);
-//    NFA res6=NFA::concatenate(res5,nfa8);
-//    NFA res7=NFA::concatenate(nfa9,nfa10);
-
-    NFA res1 = NFA::concatenate(nfa1,nfa2);
-    NFA res2 = NFA::concatenate(nfa3,nfa4);
-    NFA res3 = NFA::Or(res1,res2);
-
-    NFA kleene = NFA::kleeneClosure(res3);
-//    res3.setPriority(1);
-//    res6.setPriority(2);
-//    res7.setPriority(3);
-//    NFA res = NFA::combine({res3,res6,res7});
-//    cout << "priority:" << endl;
-//    auto priorities = res.getStatePriorities();
-//    for (const auto&priority  : priorities) {
-//        int fromState = priority.first;
-//        cout <<  fromState << " " << priority.second << endl;
+//int main() {
 //
+//    NFA nfa1, nfa2, nfa3, nfa4, nfa5, nfa6, nfa7, nfa8, nfa9, nfa10;
+//
+//    nfa1.addSympol('a');
+//    nfa2.addSympol('b');
+//    nfa3.addSympol('c');
+//    nfa4.addSympol('d');
+//    nfa5.addSympol('e');
+//    nfa6.addSympol('f');
+//    nfa7.addSympol('g');
+//    nfa8.addSympol('h');
+//    nfa9.addSympol('z');
+//    nfa10.addSympol('y');
+////    NFA res1 = NFA::concatenate(nfa1,nfa2);
+////    NFA res2=NFA::concatenate(res1,nfa3);
+////    NFA res3=NFA::concatenate(res2,nfa4);
+////    NFA res4=NFA::concatenate(nfa5,nfa6);
+////    NFA res5=NFA::concatenate(res4,nfa7);
+////    NFA res6=NFA::concatenate(res5,nfa8);
+////    NFA res7=NFA::concatenate(nfa9,nfa10);
+//
+//    NFA res1 = NFA::concatenate(nfa1,nfa2);
+//    NFA res2 = NFA::concatenate(nfa3,nfa4);
+//    NFA res3 = NFA::Or(res1,res2);
+//
+//    NFA kleene = NFA::kleeneClosure(res3);
+////    res3.setPriority(1);
+////    res6.setPriority(2);
+////    res7.setPriority(3);
+////    NFA res = NFA::combine({res3,res6,res7});
+////    cout << "priority:" << endl;
+////    auto priorities = res.getStatePriorities();
+////    for (const auto&priority  : priorities) {
+////        int fromState = priority.first;
+////        cout <<  fromState << " " << priority.second << endl;
+////
+////    }
+//
+//    // Retrieve and print transitions of the resulting NFA
+//    auto transitions = kleene.getStateTransitions();
+//    cout << "Transitions:" << endl;
+//    for (const auto &transition: transitions) {
+//        int fromState = transition.first;
+//        for (const auto &pair: transition.second) {
+//            int toState = pair.first;
+//            char input = pair.second;
+//            cout << "Transition: State " << fromState << " --(" << input << ")--> State " << toState << endl;
+//        }
 //    }
-
-    // Retrieve and print transitions of the resulting NFA
-    auto transitions = kleene.getStateTransitions();
-    cout << "Transitions:" << endl;
-    for (const auto &transition: transitions) {
-        int fromState = transition.first;
-        for (const auto &pair: transition.second) {
-            int toState = pair.first;
-            char input = pair.second;
-            cout << "Transition: State " << fromState << " --(" << input << ")--> State " << toState << endl;
-        }
-    }
-
-
-    cout << "**************************************************" << endl;
-
-    // Retrieve and print epsilon transitions of the resulting NFA
-    auto epsilonTransitions = kleene.getEpsilonTransitions();
-    cout << "Epsilon Transitions:" << endl;
-    for (const auto &epsilonTransition: epsilonTransitions) {
-        int fromState = epsilonTransition.first;
-        for (int toState: epsilonTransition.second) {
-            cout << "Epsilon Transition: State " << fromState << " --(epsilon)--> State " << toState << endl;
-        }
-    }
-    return 0;
-}
+//
+//
+//    cout << "**************************************************" << endl;
+//
+//    // Retrieve and print epsilon transitions of the resulting NFA
+//    auto epsilonTransitions = kleene.getEpsilonTransitions();
+//    cout << "Epsilon Transitions:" << endl;
+//    for (const auto &epsilonTransition: epsilonTransitions) {
+//        int fromState = epsilonTransition.first;
+//        for (int toState: epsilonTransition.second) {
+//            cout << "Epsilon Transition: State " << fromState << " --(epsilon)--> State " << toState << endl;
+//        }
+//    }
+//    return 0;
+//}
+//
