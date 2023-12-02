@@ -323,7 +323,7 @@ int main() {
     }
 
 
-    cout << "************************************************" << endl;
+    cout << "**************************************************" << endl;
 
     // Retrieve and print epsilon transitions of the resulting NFA
     auto epsilonTransitions = kleene.getEpsilonTransitions();
