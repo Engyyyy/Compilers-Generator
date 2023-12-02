@@ -6,6 +6,8 @@
 
 using namespace std;
 
+
+
 class NFA {
 private:
     map<int, vector<pair<int, char>>> stateTransitions; // Map of state number to other states with input
@@ -58,7 +60,7 @@ public:
         for (const auto &transition: nfa1.epsilonTransitions) {
             int from = m[transition.first]; // Adjust the 'from' state by the offset
             for (int to: transition.second) {
-                nfa1.addEpsilonTransition(from, m[to]); // Adjust the 'to' state by the offset
+                result.addEpsilonTransition(from, m[to]); // Adjust the 'to' state by the offset
             }
         }
 
@@ -94,7 +96,7 @@ public:
         for (const auto &transition: nfa1.epsilonTransitions) {
             int from = m[transition.first]; // Adjust the 'from' state by the offset
             for (int to: transition.second) {
-                nfa1.addEpsilonTransition(from, m[to]); // Adjust the 'to' state by the offset
+                result.addEpsilonTransition(from, m[to]); // Adjust the 'to' state by the offset
             }
         }
 
@@ -270,6 +272,22 @@ public:
         result.startState = 0;
         return result;
     }
+    map<pair<int,char>,set<int>> getNfaTransitions() const {
+        map<pair<int,char>,set<int>> NfaTransitions;
+        for (pair ele : stateTransitions ){
+            int s = ele.first;
+            for (pair p : ele.second ){
+                NfaTransitions[make_pair(s,p.second)].insert(p.first);
+            }
+        }
+        for (pair ele : epsilonTransitions ){
+            int s = ele.first;
+            for (int p : ele.second ){
+                NfaTransitions[make_pair(s,'\0')].insert(p);
+            }
+        }
+        return NfaTransitions;
+    }
 
 };
 
@@ -296,8 +314,11 @@ int main() {
 //    NFA res6=NFA::concatenate(res5,nfa8);
 //    NFA res7=NFA::concatenate(nfa9,nfa10);
 
+    NFA res1 = NFA::concatenate(nfa1,nfa2);
+    NFA res2 = NFA::concatenate(nfa3,nfa4);
+    NFA res3 = NFA::Or(res1,res2);
 
-    NFA kleene = NFA::kleeneClosure(nfa1);
+    NFA kleene = NFA::kleeneClosure(res3);
 //    res3.setPriority(1);
 //    res6.setPriority(2);
 //    res7.setPriority(3);
