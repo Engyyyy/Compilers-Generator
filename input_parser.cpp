@@ -72,12 +72,20 @@ vector<string> InputParser::tokenize(string regDef)
 		}
 	}
 	if (!validToken.empty())
+	{
 		tokens.push_back(validToken);
+		if (regDefs[validToken].empty())
+		{
+			alphabet.insert(validToken[0]);
+		}
+	}
 	return tokens;
 }
 
 vector<string> InputParser::transformToCanonicalReg(vector<string> tokens)
 {
+	for (auto token : tokens)
+		cout << token << endl;
 	vector<string> canonicalTokens;
 	int tokensLen = tokens.size();
 	for (int i = 0; i < tokensLen; i++)
@@ -97,7 +105,9 @@ vector<string> InputParser::transformToCanonicalReg(vector<string> tokens)
 			if (regDefs[end].size() == 1)
 				end = regDefs[end];
 			else if (end.size() != 1 || !alphabet.count(end[0]))
+			{
 				throw runtime_error("invalid second operand for -");
+			}
 
 			if (start[0] > end[0])
 				throw runtime_error("Invalid Range for -");
