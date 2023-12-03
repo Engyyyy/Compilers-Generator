@@ -25,11 +25,10 @@ void tokenGenerator:: read(){
     istringstream b(s);
     istream_iterator<std::string> beg(b), end;
     vector<std::string> splitTok(beg, end);
-    splitTokens = tokens;
-
+    splitTokens = splitTok;
 }
 bool tokenGenerator:: match(string str) {
-    int last = -1, lastPos = 0, error_idx = -1, curr = 0;
+    int last = -1, lastPos = -1, error_idx = -1, curr = 0;
     if (dfaFinalStates.find(curr) != dfaFinalStates.end()) {
         last = curr;
         lastPos = 0;
@@ -55,6 +54,7 @@ bool tokenGenerator:: match(string str) {
         if (type == "id") {
             ids.insert(str);
         }
+        cout<< str << 1 << endl;
         return true;
     }
 
@@ -75,7 +75,9 @@ bool tokenGenerator:: match(string str) {
             return false;
         }
         // case 2.2 str is more than one token
-        else return match(str.substr(lastPos + 1));
+        else{
+            return match(str.substr(lastPos + 1));
+        }
     }
 }
 
