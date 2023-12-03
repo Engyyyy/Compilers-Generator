@@ -3,14 +3,21 @@
 #include <map>
 #include <set>
 #include <string>
-#include "NFA.cpp"
-#include "DFA.cpp"
-#include "input handler.cpp"
+#include "NFA.h"
+#include "DFA.h"
+#include "input handler.h"
+#include "input_parser.h"
+
 
 using namespace std;
 
 int main() {
-    NFA nfa ;
+    InputParser parser("input.txt");
+    parser.parse();
+    NFA nfa = parser.getCombinedNFA();
+
+    //---------------------------------------------------------------------------//
+
     map<pair<int, char>, set<int>> nfaTransitions = nfa.getNfaTransitions();
     set<char> alphabet = nfa.getAlphabet();
     map<int, int> nfaFinalStates = nfa.getStatePriorities();
