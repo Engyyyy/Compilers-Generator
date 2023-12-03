@@ -11,6 +11,102 @@
 
 using namespace std;
 
+void InputParser::preprocessKeywords(string line)
+{
+	int n = line.size();
+	string keyword;
+	for (int i = 1; i < n - 1; i++)
+	{
+		if (keyword.empty() && line[i] == ' ')
+			continue;
+		else if (line[i] != ' ')
+		{
+			keyword += line[i];
+		}
+		else
+		{
+			num_keywords++;
+			keyword = "";
+		}
+	}
+	if (!keyword.empty())
+	{
+		num_keywords++;
+	}
+}
+
+void InputParser::preprocessPunctuations(string line)
+{
+	int n = line.size();
+	for (int i = 1; i < n - 1; i++)
+	{
+		if (line[i] == '\\')
+			continue;
+		num_punc++;
+	}
+}
+
+void InputParser::preprocess()
+{
+	string line;
+	ifstream inFile(inPath);
+	int lineNum = 0;
+	while (getline(inFile, line))
+	{
+		lineNum++;
+		line = trim(line);
+		int n = line.size();
+		if (line[0] == '\n')
+			continue;
+		if (line[0] == '{' && line[n - 1] == '}')
+		{ // keywords
+			preprocessKeywords(line);
+		}
+		else if (line[0] == '[' && line[n - 1] == ']')
+		{ // punctuations
+			line = removeSpaces(line);
+			preprocessPunctuations(line);
+		}
+		else
+		{
+			line = removeSpaces(line);
+			int equalIndex = line.find('=');
+			int colonIndex = line.find(':');
+			// regular definition
+			if ((equalIndex != -1 && colonIndex != -1 && equalIndex < colonIndex) || (equalIndex != -1 && colonIndex == -1))
+			{
+				string name = line.substr(0, equalIndex);
+				string regDef = line.substr(equalIndex + 1);
+				regDefs[name] = regDef;
+			}
+			// regular expression
+			else if ((equalIndex != -1 && colonIndex != -1 && colonIndex < equalIndex) || (colonIndex != -1 && equalIndex == -1))
+			{
+				continue;
+			}
+			// neither a regular definition nor a regular expression
+			else
+			{
+				throw runtime_error(
+					"line number " + to_string(lineNum) + " is invalid");
+			}
+		}
+	}
+}
+
+string InputParser::trim(string inStr)
+{
+	int n = inStr.size();
+	string outStr;
+	int i = 0;
+	while (inStr[i] == ' ' && i < n)
+		i++;
+	int j = n - 1;
+	while (inStr[j] == ' ' && j > i)
+		j--;
+	return inStr.substr(i, j - i + 1);
+}
+
 string InputParser::removeSpaces(string inStr)
 {
 	string outStr = "";
@@ -34,10 +130,6 @@ vector<string> InputParser::tokenize(string regDef)
 		if (currIdx == regDefLen)
 		{
 			tokens.push_back(validToken);
-			if (regDefs[validToken].empty())
-			{
-				alphabet.insert(validToken[0]);
-			}
 			validToken = "";
 			currToken = "";
 			currIdx = validIdx + 1;
@@ -49,13 +141,15 @@ vector<string> InputParser::tokenize(string regDef)
 			currIdx++;
 			tokens.push_back(ch);
 		}
-		else if (operators.count(ch))
+		else if (ch == "\\" && validToken.empty())
+		{
+			tokens.push_back(regDef.substr(currIdx, 2));
+			validIdx = currIdx + 1;
+			currIdx += 2;
+		}
+		else if (operators.count(ch) || ch == "\\")
 		{
 			tokens.push_back(validToken);
-			if (regDefs[validToken].empty())
-			{
-				alphabet.insert(validToken[0]);
-			}
 			validToken = "";
 			currToken = "";
 			currIdx = validIdx + 1;
@@ -74,10 +168,6 @@ vector<string> InputParser::tokenize(string regDef)
 	if (!validToken.empty())
 	{
 		tokens.push_back(validToken);
-		if (regDefs[validToken].empty())
-		{
-			alphabet.insert(validToken[0]);
-		}
 	}
 	return tokens;
 }
@@ -100,11 +190,11 @@ vector<string> InputParser::transformToCanonicalReg(vector<string> tokens)
 			string start = tokens[i - 1], end = tokens[i + 1];
 			if (regDefs[start].size() == 1)
 				start = regDefs[start];
-			else if (start.size() != 1 || !alphabet.count(start[0]))
+			else if (start.size() != 1)
 				throw runtime_error("invalid first operand for -");
 			if (regDefs[end].size() == 1)
 				end = regDefs[end];
-			else if (end.size() != 1 || !alphabet.count(end[0]))
+			else if (end.size() != 1)
 			{
 				throw runtime_error("invalid second operand for -");
 			}
@@ -120,7 +210,6 @@ vector<string> InputParser::transformToCanonicalReg(vector<string> tokens)
 				{
 					canonicalTokens.push_back(string(1, ch));
 					canonicalTokens.push_back("|");
-					alphabet.insert(ch);
 				}
 			}
 		}
@@ -232,7 +321,6 @@ void InputParser::handleRegDef(string line, int equalIdx)
 {
 	string name = line.substr(0, equalIdx);
 	string regDef = line.substr(equalIdx + 1);
-	regDefs[name] = regDef;
 
 	vector<string> tokens = addConcatSymbol(transformToCanonicalReg(tokenize(regDef)));
 	NFA nfa = buildNFA(tokens);
@@ -245,7 +333,11 @@ void InputParser::handleRegEx(string line, int colonIdx)
 	string regex = line.substr(colonIdx + 1);
 	vector<string> tokens = addConcatSymbol(transformToCanonicalReg(tokenize(regex)));
 	NFA nfa = buildNFA(tokens);
+	int p = num_keywords + num_punc + i_reg;
+	nfa.setPriority(p);
 	nfas.push_back(nfa);
+	priorityStrings[p] = name;
+	i_reg++;
 }
 
 InputParser::InputParser(string inputPath)
@@ -260,11 +352,22 @@ void InputParser::handleKeywords(string line)
 	NFA nfa;
 	for (int i = 1; i < n - 1; i++)
 	{
-		cout << keyword << endl;
-		if (keyword.empty())
+		if (keyword.empty() && line[i] == ' ')
+			continue;
+		else if (keyword.empty())
 		{
 			keyword += line[i];
 			nfa.addSympol(line[i]);
+		}
+		else if (line[i] == ' ')
+		{
+			nfa.setPriority(i_keyword);
+			nfas.push_back(nfa);
+			priorityStrings[i_keyword] = keyword;
+			i_keyword++;
+			NFA newNfa;
+			nfa = newNfa;
+			keyword = "";
 		}
 		else
 		{
@@ -273,14 +376,13 @@ void InputParser::handleKeywords(string line)
 			currSymbolNfa.addSympol(line[i]);
 			nfa = NFA::concatenate(nfa, currSymbolNfa);
 		}
-		if (keywords.count(keyword))
-		{
-			nfas.push_back(nfa);
-			NFA newNfa;
-			nfa = newNfa;
-			keyword = "";
-			cout << "Match keyword" << endl;
-		}
+	}
+	if (!keyword.empty())
+	{
+		nfa.setPriority(i_keyword);
+		nfas.push_back(nfa);
+		priorityStrings[i_keyword] = keyword;
+		i_keyword++;
 	}
 }
 
@@ -293,18 +395,23 @@ void InputParser::handlePunctuations(string line)
 			continue;
 		NFA nfa;
 		nfa.addSympol(line[i]);
+		int p = num_keywords + i_punc;
+		nfa.setPriority(p);
+		priorityStrings[p] = line[i];
 		nfas.push_back(nfa);
+		i_punc++;
 	}
 }
 void InputParser::parse()
 {
+	preprocess();
 	string line;
 	ifstream inFile(inPath);
 	int lineNum = 0;
 	while (getline(inFile, line))
 	{
 		lineNum++;
-		line = removeSpaces(line);
+		line = trim(line);
 		int n = line.size();
 		if (line[0] == '\n')
 			continue;
@@ -314,10 +421,12 @@ void InputParser::parse()
 		}
 		else if (line[0] == '[' && line[n - 1] == ']')
 		{ // punctuations
+			line = removeSpaces(line);
 			handlePunctuations(line);
 		}
 		else
 		{
+			line = removeSpaces(line);
 			int equalIndex = line.find('=');
 			int colonIndex = line.find(':');
 			// regular definition
@@ -344,6 +453,11 @@ void InputParser::parse()
 NFA InputParser::getCombinedNFA()
 {
 	return combinedNFA;
+}
+
+map<int, string> InputParser::getPriorityStrings()
+{
+	return priorityStrings;
 }
 
 int main()
