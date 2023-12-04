@@ -13,15 +13,15 @@ using namespace std;
 class NFA
 {
 private:
-	map<int, vector<pair<int, char>>> stateTransitions; // Map of state number to other states with input
-	map<int, vector<int>> epsilonTransitions;           // Epsilon transitions
-	set<char> alphabet;                                 // String alphabet
-	map<int, int> statePriorities;                      // Map of state number to priority
-	map<int, string> priorityStrings;                   // Map of priority number to the string
-	// 0 --> keyWord
-	// 1 --> pun
-	int startState = 0, endState = 0;
-	int priority = -1;                         // Set of punctuations
+    map<int, vector<pair<int, char>>> stateTransitions; // Map of state number to other states with input
+    map<int, vector<int>> epsilonTransitions;           // Epsilon transitions
+    set<char> alphabet;                                 // String alphabet
+    map<int, int> statePriorities;                      // Map of state number to priority
+    map<int, string> priorityStrings;                   // Map of priority number to the string
+    // 0 --> keyWord
+    // 1 --> pun
+    int startState = 0, endState = 0;
+    int priority = -1;                         // Set of punctuations
 //    int numStates;                                      // Total number of states in the NFA
     void updateNumStates(int from, int to);
 
