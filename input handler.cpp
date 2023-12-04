@@ -1,4 +1,3 @@
-#include <iostream>
 #include <utility>
 #include <string>
 #include <map>
@@ -13,8 +12,6 @@
 using namespace std;
 
 
-
-
 void tokenGenerator:: read(){
     string s, line;
     ifstream file(fileName);
@@ -27,6 +24,7 @@ void tokenGenerator:: read(){
     vector<std::string> splitTok(beg, end);
     splitTokens = splitTok;
 }
+
 bool tokenGenerator:: match(string str) {
     int last = -1, lastPos = -1, error_idx = -1, curr = 0;
     if (dfaFinalStates.find(curr) != dfaFinalStates.end()) {
@@ -37,6 +35,7 @@ bool tokenGenerator:: match(string str) {
     for (int i = 0; i < str.size(); i++) {
         if (Dfa.find(make_pair(curr, str[i])) == Dfa.end()) {
             error_idx = i;
+            curr = Dfa[make_pair(curr, str[i])];
             break;
         }
         curr = Dfa[make_pair(curr, str[i])];
@@ -54,7 +53,6 @@ bool tokenGenerator:: match(string str) {
         if (type == "id") {
             ids.insert(str);
         }
-        cout<< str << 1 << endl;
         return true;
     }
 

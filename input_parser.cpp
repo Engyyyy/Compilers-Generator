@@ -473,38 +473,3 @@ set<char> InputParser::getPunctuations()
 {
 	return punctuations;
 }
-
-int main()
-{
-
-	InputParser parser("input.txt");
-	parser.parse();
-	NFA nfa = parser.getCombinedNFA();
-	// Retrieve and print transitions of the resulting NFA
-	auto transitions = nfa.getStateTransitions();
-	cout << "Transitions:" << endl;
-	for (const auto &transition : transitions)
-	{
-		int fromState = transition.first;
-		for (const auto &pair : transition.second)
-		{
-			int toState = pair.first;
-			char input = pair.second;
-			cout << "Transition: State " << fromState << " --(" << input << ")--> State " << toState << endl;
-		}
-	}
-
-	cout << "**************************************************" << endl;
-
-	// Retrieve and print epsilon transitions of the resulting NFA
-	auto epsilonTransitions = nfa.getEpsilonTransitions();
-	cout << "Epsilon Transitions:" << endl;
-	for (const auto &epsilonTransition : epsilonTransitions)
-	{
-		int fromState = epsilonTransition.first;
-		for (int toState : epsilonTransition.second)
-		{
-			cout << "Epsilon Transition: State " << fromState << " --(epsilon)--> State " << toState << endl;
-		}
-	}
-}

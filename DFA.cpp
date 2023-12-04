@@ -54,46 +54,50 @@ void DFA:: subsetConstructionAlgorithm() {
 
         // Iterate over alphabet symbols
         for (char symbol : alphabet) {
-            // Get the set of next states for the current symbol
-            set<int> nextState = getNextStates(currentState.first, symbol);
-            // Compute the epsilon closure of the next states
-            set<int> closure;
-            for (int state : nextState) {
-                set<int> ep = epsilonClosure(state);
-                closure.insert(ep.begin(), ep.end());
-            }
+            if(symbol!='\0'){
 
-            // If the closure set is empty, skip to the next symbol
-            if (closure.empty()) continue;
-
-            // Check if the closure is a new state in the DFA
-            bool isNewState = true;
-
-            // Iterate over existing DFA states
-            for (int i = 0; i < dfaStates.size(); ++i) {
-                // If the closure matches an existing state, update transition and break
-                if (closure == dfaStates[i]) {
-                    isNewState = false;
-                    Dfa[make_pair(currentState.second, symbol)] = i;
-                    break;
+                // Get the set of next states for the current symbol
+                set<int> nextState = getNextStates(currentState.first, symbol);
+                // Compute the epsilon closure of the next states
+                set<int> closure;
+                for (int state : nextState) {
+                    set<int> ep = epsilonClosure(state);
+                    closure.insert(ep.begin(), ep.end());
                 }
-            }
 
-            // If the closure is a new state, add it to the DFA and enqueue for further exploration
-            if (isNewState) {
-                dfaStates[dfaStates.size()] = closure;
-                unprocessedStates.push(make_pair(closure, dfaStates.size() - 1));
-                Dfa[make_pair(currentState.second, symbol)] = dfaStates.size() - 1;
+                // If the closure set is empty, skip to the next symbol
+                if (closure.empty()) continue;
 
-                // Update final states in DFA based on NFA final states
-                for (int s : closure) {
-                    if (nfaFinalStates.find(s) != nfaFinalStates.end()) {
-                        if (dfaFinalStates.find(dfaStates.size() - 1) == dfaFinalStates.end())
-                            dfaFinalStates[dfaStates.size() - 1] = nfaFinalStates[s];
-                        dfaFinalStates[dfaStates.size() - 1] = min(dfaFinalStates[dfaStates.size() - 1], nfaFinalStates[s]);
+                // Check if the closure is a new state in the DFA
+                bool isNewState = true;
+
+                // Iterate over existing DFA states
+                for (int i = 0; i < dfaStates.size(); ++i) {
+                    // If the closure matches an existing state, update transition and break
+                    if (closure == dfaStates[i]) {
+                        isNewState = false;
+                        Dfa[make_pair(currentState.second, symbol)] = i;
+                        break;
+                    }
+                }
+
+                // If the closure is a new state, add it to the DFA and enqueue for further exploration
+                if (isNewState) {
+                    dfaStates[dfaStates.size()] = closure;
+                    unprocessedStates.push(make_pair(closure, dfaStates.size() - 1));
+                    Dfa[make_pair(currentState.second, symbol)] = dfaStates.size() - 1;
+
+                    // Update final states in DFA based on NFA final states
+                    for (int s : closure) {
+                        if (nfaFinalStates.find(s) != nfaFinalStates.end()) {
+                            if (dfaFinalStates.find(dfaStates.size() - 1) == dfaFinalStates.end())
+                                dfaFinalStates[dfaStates.size() - 1] = nfaFinalStates[s];
+                            dfaFinalStates[dfaStates.size() - 1] = min(dfaFinalStates[dfaStates.size() - 1], nfaFinalStates[s]);
+                        }
                     }
                 }
             }
+
         }
     }
 }
@@ -208,47 +212,3 @@ map<int, int> DFA:: getDFAFinalStates() const {
     return dfaFinalStates;
 }
 
-
-
-//int main() {
-//    map<pair<int,char>,set<int>> NFA ; // state number --> next states
-//    string alphabet = "ab";
-//    map<int ,int > nfaFinalStates; // state number --> priority
-//    map<int,string> priority; // priority number --> string (0 maps to keywords)
-//    NFA[make_pair(0,' ')]={1,7};
-//    NFA[make_pair(1,' ')]={2,4};
-//    NFA[make_pair(2,'a')]={3};
-//    NFA[make_pair(3,' ')]={6};
-//    NFA[make_pair(4,'b')]={5};
-//    NFA[make_pair(5,' ')]={6};
-//    NFA[make_pair(6,' ')]={1,7};
-//    NFA[make_pair(7,'a')]={8};
-//    NFA[make_pair(8,'b')]={9};
-//    NFA[make_pair(9,'b')]={10};
-//    nfaFinalStates[10]=0;
-//    DFA d = DFA(NFA,alphabet,nfaFinalStates);
-//    map<int,set<int>> dfaStates=d.getDFAStates();
-//    cout << "DFA transitions :"<< endl;
-//    for (int i = 0 ; i<dfaStates.size();i++) {
-//        for (char symbol : alphabet) {
-//            if(d.getDFA().find(make_pair(i,symbol))!=d.getDFA().end()){
-//                map<pair<int,char>,int> Dfa =  d.getDFA();
-//                cout << "state "<< i << " --"<< symbol << "--> : "<< Dfa[make_pair(i,symbol)]<<endl;
-//            }
-//        }
-//    }
-//
-//    cout << "DFA final states :"<< endl;
-//    for (pair<const int, int> s:d.getDFAFinalStates()) {
-//        cout << s.first <<" ";
-//    }
-//    cout << "DFA states :"<< endl;
-//
-//    for(int i = 0 ; i< dfaStates.size() ; i++){
-//        cout << endl;
-//        cout << "state : "<< i << " : ";
-//        for (int s : dfaStates[i]) {
-//            cout << s << " ";
-//        }
-//    }
-//}

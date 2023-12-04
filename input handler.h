@@ -18,6 +18,7 @@ private:
     std::map<std::pair<int, char>, int> Dfa;
     std::map<int, int> dfaFinalStates;
     std::string fileName;
+    std::set<char> punctuations;
     std::vector<std::string> splitTokens;
     std::set<std::string> ids;
     std::vector<std::string> tokens;
