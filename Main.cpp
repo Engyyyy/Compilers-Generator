@@ -9,7 +9,6 @@
 #include "input handler.h"
 #include "input_parser.h"
 
-
 using namespace std;
 
 int main() {
