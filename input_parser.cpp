@@ -183,7 +183,9 @@ vector<string> InputParser::transformToCanonicalReg(vector<string> tokens)
 		if (tokens[i] == "-")
 		{
 			if (i == 0 || i == tokensLen - 1)
+			{
 				throw runtime_error("Invalid Position for -");
+			}
 
 			// figure out whether operands are regular expressions or regular definitions.
 			// operands of - must be symbols
@@ -405,6 +407,7 @@ void InputParser::handlePunctuations(string line)
 		nfa.setPriority(p);
 		priorityStrings[p] = line[i];
 		nfas.push_back(nfa);
+		punctuations.insert(line[i]);
 		i_punc++;
 	}
 }
@@ -464,6 +467,11 @@ NFA InputParser::getCombinedNFA()
 map<int, string> InputParser::getPriorityStrings()
 {
 	return priorityStrings;
+}
+
+set<char> InputParser::getPunctuations()
+{
+	return punctuations;
 }
 
 int main()

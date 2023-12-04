@@ -25,6 +25,7 @@ private:
 	int i_keyword = 0;
 	int i_punc = 0;
 	int i_reg = 0;
+	set<char> punctuations;
 	map<int, string> priorityStrings;
 	map<string, NFA> basicExps;
 	map<string, string> regDefs;
@@ -51,6 +52,7 @@ public:
 	void parse();
 	NFA getCombinedNFA();
 	map<int, string> getPriorityStrings();
+	set<char> getPunctuations();
 };
 
 #endif /* INPUT_PARSER_H_ */
