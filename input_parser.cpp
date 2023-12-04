@@ -174,8 +174,8 @@ vector<string> InputParser::tokenize(string regDef)
 
 vector<string> InputParser::transformToCanonicalReg(vector<string> tokens)
 {
-	for (auto token : tokens)
-		cout << token << endl;
+	// for (auto token : tokens)
+	// 	cout << token << endl;
 	vector<string> canonicalTokens;
 	int tokensLen = tokens.size();
 	for (int i = 0; i < tokensLen; i++)
@@ -305,8 +305,14 @@ NFA InputParser::buildNFA(vector<string> tokens)
 		}
 		else
 		{ // alphabet symbol
+			assert(token.size() == 1 || (token.size() == 2 && token[0] == '\\'));
 			NFA nfa;
-			nfa.addSympol(token[0]);
+			if (token.size() == 1)
+				nfa.addSympol(token[0]);
+			else if (token == "\\L")
+				nfa.addSympol('\0');
+			else if (token[0] == '\\')
+				nfa.addSympol(token[1]);
 			operandsStack.push(nfa);
 		}
 	}
