@@ -15,7 +15,7 @@ using namespace std;
 int main() {
     //------------------------------------- 1. input parsing -------------------------------------//
 
-    InputParser parser("lexical rules path");
+    InputParser parser("C:\\Users\\Lenovo\\Desktop\\f2.txt");
     parser.parse();
 
     //------------------------------------------ 2. NFA ------------------------------------------//
@@ -35,7 +35,7 @@ int main() {
 
     //------------------------------------ 4. Generate tokens ------------------------------------//
 
-    string path = "test code path";
+    string path = "C:\\Users\\Lenovo\\Desktop\\file1.txt";
     tokenGenerator t = tokenGenerator(priorityStrings,dfaTransitions,dfaFinalStates,path);
     set<string> ids = t.getIds() ;
     vector<string> tokens = t.getTokens();
@@ -51,14 +51,19 @@ int main() {
     };
     sort(vec.begin(), vec.end(), customComparator);
     int curr = 0;
+    int statesNum = 1 ;
     ofstream outputFile1("DFA.txt");
     for (const auto& ele : vec) {
         if(ele.first.first!=curr){
             outputFile1 <<"-------------------------------------------------------------------------------------------------"<< endl;
             curr= ele.first.first;
+            statesNum++;
         }
         outputFile1 << "state  " << ele.first.first << " --(" << ele.first.second << ")-->: state " << ele.second << endl;
     }
+    outputFile1 <<"\n\n\n\n\n\n"<< endl;
+    outputFile1 << "Number of states : "<< statesNum<< " state" << endl;
+
     outputFile1.close();
 
     //5.2 Tokens :
