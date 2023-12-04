@@ -174,8 +174,6 @@ vector<string> InputParser::tokenize(string regDef)
 
 vector<string> InputParser::transformToCanonicalReg(vector<string> tokens)
 {
-	// for (auto token : tokens)
-	// 	cout << token << endl;
 	vector<string> canonicalTokens;
 	int tokensLen = tokens.size();
 	for (int i = 0; i < tokensLen; i++)
@@ -228,12 +226,14 @@ vector<string> InputParser::addConcatSymbol(vector<string> tokens)
 	modifiedTokens.push_back(tokens[0]);
 	for (int i = 1; i < n; i++)
 	{
-		if ((!operators.count(tokens[i]) && !operators.count(tokens[i - 1])) || (!operators.count(tokens[i]) && tokens[i - 1] == ")") || (tokens[i] == "(" && !operators.count(tokens[i - 1])))
+		if ((!operators.count(tokens[i]) && !operators.count(tokens[i - 1])) || (!operators.count(tokens[i]) && tokens[i - 1] == ")") || (tokens[i] == "(" && !operators.count(tokens[i - 1])) || (!operators.count(tokens[i]) && tokens[i - 1] == "*") || (!operators.count(tokens[i]) && tokens[i - 1] == "+"))
 		{
 			modifiedTokens.push_back(" ");
 		}
 		modifiedTokens.push_back(tokens[i]);
 	}
+	// for (auto token : modifiedTokens)
+	// 	cout << (token == " " ? "c" : token) << endl;
 	return modifiedTokens;
 }
 
