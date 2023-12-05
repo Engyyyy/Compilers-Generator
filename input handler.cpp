@@ -33,12 +33,13 @@ bool tokenGenerator:: match(string str) {
     }
     // get last accepted state and error is found.
     for (int i = 0; i < str.size(); i++) {
-        if (Dfa.find(make_pair(curr, str[i])) == Dfa.end()) {
+        pair p = make_pair(curr, str[i]);
+        if (!(Dfa.find(p) != Dfa.end() )) {
             error_idx = i;
-            curr = Dfa[make_pair(curr, str[i])];
             break;
         }
         curr = Dfa[make_pair(curr, str[i])];
+
         if (dfaFinalStates.find(curr) != dfaFinalStates.end()) {
             last = curr;
             lastPos = i;
@@ -46,7 +47,7 @@ bool tokenGenerator:: match(string str) {
     }
 
     // case 1 : str is a one token
-    if (curr == last) {
+    if (lastPos== str.size()-1) {
         string type = priority[dfaFinalStates[curr]];
         tokens.push_back(type);
         values.push_back(str);
@@ -63,11 +64,12 @@ bool tokenGenerator:: match(string str) {
             tokens.push_back(type);
             values.push_back(str.substr(0,lastPos+1));
             if (type == "id") {
-                ids.insert(str);
+                ids.insert(str.substr(0,lastPos+1));
             }
         }
         // case 2.1 : error
-        if ((lastPos!=-1 && error_idx!=lastPos+1) || lastPos == -1 ){
+        if(lastPos == -1 ){
+            cout<<str<<endl;
             string reminder = str.substr(lastPos + 1);
             errors.push_back(reminder);
             return false;
