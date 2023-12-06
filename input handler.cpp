@@ -25,7 +25,63 @@ void tokenGenerator:: read(){
     splitTokens = splitTok;
 }
 
-bool tokenGenerator:: match(string str) {
+//bool tokenGenerator:: match(string str) {
+//    int last = -1, lastPos = -1, error_idx = -1, curr = 0;
+//    if (dfaFinalStates.find(curr) != dfaFinalStates.end()) {
+//        last = curr;
+//        lastPos = 0;
+//    }
+//    // get last accepted state and error is found.
+//    for (int i = 0; i < str.size(); i++) {
+//        pair p = make_pair(curr, str[i]);
+//        if (!(Dfa.find(p) != Dfa.end() )) {
+//            error_idx = i;
+//            break;
+//        }
+//        curr = Dfa[make_pair(curr, str[i])];
+//
+//        if (dfaFinalStates.find(curr) != dfaFinalStates.end()) {
+//            last = curr;
+//            lastPos = i;
+//        }
+//    }
+//
+//    // case 1 : str is a one token
+//    if (lastPos== str.size()-1) {
+//        string type = priority[dfaFinalStates[curr]];
+//        tokens.push_back(type);
+//        values.push_back(str);
+//        if (type == "id") {
+//            ids.insert(str);
+//        }
+//        return true;
+//    }
+//
+//    // case 2 : str is more than one token or error
+//    else {
+//        if(lastPos!=-1){
+//            string type = priority[dfaFinalStates[last]];
+//            tokens.push_back(type);
+//            values.push_back(str.substr(0,lastPos+1));
+//            if (type == "id") {
+//                ids.insert(str.substr(0,lastPos+1));
+//            }
+//        }
+//        // case 2.1 : error
+//        if(lastPos == -1 ){
+//            string reminder = str.substr(lastPos + 1);
+//            errors.push_back(reminder);
+//            return false;
+//        }
+//        // case 2.2 str is more than one token
+//        else{
+//            return match(str.substr(lastPos + 1));
+//        }
+//    }
+//}
+
+
+bool tokenGenerator:: match2(string str , bool isError) {
     int last = -1, lastPos = -1, error_idx = -1, curr = 0;
     if (dfaFinalStates.find(curr) != dfaFinalStates.end()) {
         last = curr;
@@ -57,7 +113,7 @@ bool tokenGenerator:: match(string str) {
         return true;
     }
 
-    // case 2 : str is more than one token or error
+        // case 2 : str is more than one token or error
     else {
         if(lastPos!=-1){
             string type = priority[dfaFinalStates[last]];
@@ -69,20 +125,21 @@ bool tokenGenerator:: match(string str) {
         }
         // case 2.1 : error
         if(lastPos == -1 ){
-            cout<<str<<endl;
-            string reminder = str.substr(lastPos + 1);
-            errors.push_back(reminder);
-            return false;
+            char e = str[0];
+            string reminder = str.substr(lastPos + 2);
+            if(isError) errors[errors.size()-1]+=e;
+            else errors.push_back({e});
+            return match2(reminder, true);
         }
-        // case 2.2 str is more than one token
+            // case 2.2 str is more than one token
         else{
-            return match(str.substr(lastPos + 1));
+            return match2(str.substr(lastPos + 1), false);
         }
     }
 }
 
 void tokenGenerator:: matchAllSplitTokens(){
-    for(string s : splitTokens) match(s);
+    for(string s : splitTokens) match2(s, false);
 }
 
 

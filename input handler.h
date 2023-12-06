@@ -47,6 +47,8 @@ public:
 
     // Getter for errors
     std::vector<std::string> getErrors() const;
+
+    bool match2(std::string str, bool isError);
 };
 
 #endif  // TOKENGENERATOR_H
