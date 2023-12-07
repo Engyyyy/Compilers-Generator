@@ -24,6 +24,8 @@ private:
     std::vector<std::string> tokens;
     std::vector<std::string> values;
     std::vector<std::string> errors;
+    std::vector<int> tp;
+
 
     void read();
 
@@ -41,6 +43,8 @@ public:
 
     // Getter for tokens
     std::vector<std::string> getTokens() const;
+
+    std::vector<int> getTypes() const;
 
     // Getter for values
     std::vector<std::string> getValues() const;

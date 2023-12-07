@@ -45,6 +45,15 @@ int main() {
 //
 //    nfa30.addSympol('1');
 //    nfa31.addSympol('0');
+//    NFA nfa51,nfa52,nfa53,nfa54,nfa55,nfa56,nfa57,nfa58;
+//    nfa51.addSympol('2');
+//    nfa52.addSympol('3');
+//    nfa53.addSympol('4');
+//    nfa54.addSympol('5');
+//    nfa55.addSympol('6');
+//    nfa56.addSympol('7');
+//    nfa57.addSympol('8');
+//    nfa58.addSympol('9');
 //
 //    nfa32.addSympol('+');
 //    nfa33.addSympol('-');
@@ -82,42 +91,90 @@ int main() {
 //    letter = NFA::Or(letter,nfa26);
 //
 //    NFA dig = NFA::Or(nfa30,nfa31);
+//    dig = NFA::Or(dig,nfa51);
+//    dig = NFA::Or(dig,nfa52);
+//    dig = NFA::Or(dig,nfa53);
+//    dig = NFA::Or(dig,nfa54);
+//    dig = NFA::Or(dig,nfa55);
+//    dig = NFA::Or(dig,nfa56);
+//    dig = NFA::Or(dig,nfa57);
+//    dig = NFA::Or(dig,nfa58);
 //
-//    NFA digs = NFA::kleeneClosure(dig);
+//
+//    NFA digs = NFA::positiveClosure(dig);
 //
 //    NFA oo = NFA::Or(letter,dig);
 //    NFA pc = NFA::positiveClosure(oo);
-//
 //    NFA id = NFA::concatenate(letter,pc);
-//    id.setPriority(3);
-//    priorityStrings[3]="id";
-//    NFA num = NFA::positiveClosure(dig);
+//    id.setPriority(100);
+//    priorityStrings[100]="id";
+//
+//
+//    //num: digit+ | digit+ . digits ( \L | E digits)
+//    NFA num , ps = NFA::positiveClosure(dig);
+//    NFA a , e , dot ;a.addSympol('\0');e.addSympol('E');dot.addSympol('.');
+//    a = NFA::Or(a,e);
+//    a=NFA::concatenate(digs,a);
+//    a=NFA::concatenate(dot,a);
+//    a=NFA::concatenate(ps,a);
+//    num=NFA::Or(ps,a);
 //    num.setPriority(4);
 //    priorityStrings[4]="num";
+//
 //    NFA assign ;
 //    assign.addSympol('=');
 //    assign.setPriority(5);
 //    priorityStrings[5]="assign";
+//
 //    NFA addop = NFA::Or(nfa32,nfa33);
 //    addop.setPriority(6);
 //    priorityStrings[6]="addop";
+//
 //    NFA mulop = NFA::Or(nfa34,nfa35);
 //    mulop.setPriority(7);
 //    priorityStrings[7]="mulop";
+//
 //    NFA relop = NFA::concatenate(nfa37,nfa36);
 //    relop.setPriority(8);
 //    priorityStrings[8]="relop";
+//
 //    NFA wh = NFA::concatenate(nfa2,nfa16);
 //    wh = NFA::concatenate(wh,nfa8);
 //    wh = NFA::concatenate(wh,nfa19);
 //    wh = NFA::concatenate(wh,nfa3);
 //    wh.setPriority(1);
 //    priorityStrings[1]="while";
+//
 //    NFA in = NFA::concatenate(nfa8,nfa25);
 //    in = NFA::concatenate(in,nfa5);
 //    in.setPriority(2);
 //    priorityStrings[2]="int";
 //
+//    NFA boolean = NFA::concatenate(nfa24,nfa9);
+//    boolean = NFA::concatenate(boolean,nfa9);
+//    boolean = NFA::concatenate(boolean,nfa19);
+//    boolean = NFA::concatenate(boolean,nfa3);
+//    boolean = NFA::concatenate(boolean,nfa11);
+//    boolean = NFA::concatenate(boolean,nfa25);
+//    boolean.setPriority(21);
+//    priorityStrings[21]="boolean";
+//
+//    NFA fl = NFA::concatenate(nfa14,nfa19);
+//    fl = NFA::concatenate(fl,nfa9);
+//    fl = NFA::concatenate(fl,nfa11);
+//    fl= NFA::concatenate(fl,nfa5);
+//    fl.setPriority(22);
+//    priorityStrings[22]="float";
+//
+//    NFA ff = NFA::concatenate(nfa8,nfa14);
+//    ff.setPriority(23);
+//    priorityStrings[23]="if";
+////
+//    NFA el = NFA::concatenate(nfa3,nfa19);
+//    el = NFA::concatenate(el,nfa12);
+//    el = NFA::concatenate(el,nfa3);
+//    el.setPriority(24);
+//    priorityStrings[24]="else";
 //
 //    NFA p1 , p2 , p3 , p4 , p5 , p6 ;
 //    p1.addSympol(';');
@@ -138,7 +195,7 @@ int main() {
 //    p6.addSympol(')');
 //    p6.setPriority(14);
 //    priorityStrings[14]=")";
-//    vector<NFA> v = {id , num , assign , addop , mulop , relop , wh , in , p1 , p2, p3 , p4, p5 , p6};
+//    vector<NFA> v = {el , ff , fl , boolean , id , num , assign , addop , mulop , relop , wh , in , p1 , p2, p3 , p4, p5 , p6};
 //
 //
 //    NFA nfa = NFA::combine(v);
@@ -173,46 +230,68 @@ int main() {
 
     //----------------------------------------- 5. Output -----------------------------------------//
     //5.1 DFA table :
-    vector<std::pair<std::pair<int, char>, int>> vec(dfaTransitions.begin(), dfaTransitions.end());
-    auto customComparator = [](const auto& lhs, const auto& rhs) {
-        return (lhs.first.first < rhs.first.first) ||
-               (!(rhs.first.first < lhs.first.first) && lhs.first.second < rhs.first.second);
-    };
-    sort(vec.begin(), vec.end(), customComparator);
-    int curr = 0;
-    ofstream outputFile1("DFA.txt");
-    for (const auto& ele : vec) {
-        if(ele.first.first!=curr){
-            outputFile1 <<"-------------------------------------------------------------------------------------------------"<< endl;
-            curr= ele.first.first;
-        }
-        outputFile1 << "state  " << ele.first.first << " --(" << ele.first.second << ")-->: state " << ele.second << endl;
-    }
-    outputFile1 <<"\n\n\n\n\n\n"<< endl;
-    outputFile1 << "Number of states : "<< dfa.getDFAStates().size()<< " state" << endl;
+//    vector<std::pair<std::pair<int, char>, int>> vec(dfaTransitions.begin(), dfaTransitions.end());
+//    auto customComparator = [](const auto& lhs, const auto& rhs) {
+//        return (lhs.first.first < rhs.first.first) ||
+//               (!(rhs.first.first < lhs.first.first) && lhs.first.second < rhs.first.second);
+//    };
+//    sort(vec.begin(), vec.end(), customComparator);
+//    int curr = 0;
+//    ofstream outputFile1("DFA.txt");
+//    for (const auto& ele : vec) {
+//        if(ele.first.first!=curr){
+//            outputFile1 <<"-------------------------------------------------------------------------------------------------"<< endl;
+//            curr= ele.first.first;
+//        }
+//        outputFile1 << "state  " << ele.first.first << " --(" << ele.first.second << ")-->: state " << ele.second << endl;
+//    }
+//    outputFile1 <<"\n\n\n\n\n\n"<< endl;
+//    outputFile1 << "Number of states : "<< dfa.getDFAStates().size()<< " state" << endl;
+//
+//    outputFile1.close();
 
+    ofstream outputFile1("DFA.txt");
+    for (const auto& ele : dfa.getDFAStates()) {
+        for (const auto& ch : alphabet) {
+            if(ch!='\0'){
+                if(dfaTransitions.find(make_pair(ele.first,ch))!=dfaTransitions.end())
+                    outputFile1 << "state  " << ele.first<< " --(" << ch << ")-->: state " << dfaTransitions[make_pair(ele.first,ch)] << endl;
+                else
+                    outputFile1 << "state  " << ele.first<< " --(" << ch << ")-->: Dead state"  << endl;
+            }
+
+        }
+        outputFile1 << "--------------------------------------------------------------------------------------------" << endl;
+
+    }
     outputFile1.close();
 
     //5.2 Tokens :
     ofstream outputFile2("Tokens.txt");
-    for (auto s: tokens) {
-        outputFile2 << s << endl;
+    int to =0 , e =0 , v=0;
+    for (auto ct: t.getTypes()) {
+        if(ct==0) {
+            outputFile2 << "error" << endl;
+        } else{
+            outputFile2 << tokens[to] << endl;
+            to++;
+        }
     }
     outputFile2.close();
 
     //5.3 Values :
     ofstream outputFile3("Values.txt");
-    for (auto s: values) {
-        outputFile3 << s << endl;
+    for (auto ct: t.getTypes()) {
+        if(ct==0) {
+            outputFile3 << errors[e] << endl;
+            e++;
+        } else{
+            outputFile3 << values[v] << endl;
+            v++;
+        }
     }
     outputFile3.close();
 
-    //5.4 errors :
-    ofstream outputFile4("Errors.txt");
-    for (auto s: errors) {
-        outputFile4 << s << endl;
-    }
-    outputFile4.close();
-
+    
 
 }

@@ -54,6 +54,8 @@ bool tokenGenerator:: match(string str) {
         if (type == "id") {
             ids.insert(str);
         }
+        tp.push_back(1);
+
         return true;
     }
 
@@ -66,11 +68,14 @@ bool tokenGenerator:: match(string str) {
             if (type == "id") {
                 ids.insert(str.substr(0,lastPos+1));
             }
+            tp.push_back(1);
+
         }
         // case 2.1 : error
         if(lastPos == -1 ){
             string reminder = str.substr(lastPos + 1);
             errors.push_back(reminder);
+            tp.push_back(0);
             return false;
         }
         // case 2.2 str is more than one token
@@ -112,6 +117,7 @@ bool tokenGenerator:: match2(string str , bool isError) {
         if (type == "id") {
             ids.insert(str);
         }
+        tp.push_back(1);
         return true;
     }
 
@@ -124,12 +130,17 @@ bool tokenGenerator:: match2(string str , bool isError) {
             if (type == "id") {
                 ids.insert(str.substr(0,lastPos+1));
             }
+            tp.push_back(1);
         }
         // case 2.1 : error
         if(lastPos == -1 ){
             char e = str[0];
             if(isError) errors[errors.size()-1]+=e;
-            else errors.push_back({e});
+            else {
+                errors.push_back({e});
+                tp.push_back(0);
+            }
+
             if(lastPos + 2<str.size()){
                 string reminder = str.substr(lastPos + 2);
                 return match2(reminder, true);
@@ -181,4 +192,6 @@ vector<string> tokenGenerator:: getValues() const {
 vector<string> tokenGenerator:: getErrors() const {
     return errors;
 }
-
+vector<int> tokenGenerator::getTypes() const{
+    return tp;
+}
