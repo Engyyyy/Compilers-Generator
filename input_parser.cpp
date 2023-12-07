@@ -226,7 +226,7 @@ vector<string> InputParser::addConcatSymbol(vector<string> tokens)
 	modifiedTokens.push_back(tokens[0]);
 	for (int i = 1; i < n; i++)
 	{
-		if ((!operators.count(tokens[i]) && !operators.count(tokens[i - 1])) || (!operators.count(tokens[i]) && tokens[i - 1] == ")") || (tokens[i] == "(" && !operators.count(tokens[i - 1])) || (!operators.count(tokens[i]) && tokens[i - 1] == "*") || (!operators.count(tokens[i]) && tokens[i - 1] == "+"))
+		if ((!operators.count(tokens[i]) && !operators.count(tokens[i - 1])) || (!operators.count(tokens[i]) && tokens[i - 1] == ")") || (tokens[i] == "(" && !operators.count(tokens[i - 1])) || (!operators.count(tokens[i]) && tokens[i - 1] == "*") || (!operators.count(tokens[i]) && tokens[i - 1] == "+") || (tokens[i] == "(" && tokens[i - 1] == ")") || (tokens[i] == "(" && tokens[i - 1] == "+") || (tokens[i] == "(" && tokens[i - 1] == "*"))
 		{
 			modifiedTokens.push_back(" ");
 		}
