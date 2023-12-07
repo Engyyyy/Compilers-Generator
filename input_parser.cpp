@@ -56,7 +56,7 @@ void InputParser::preprocess()
 		lineNum++;
 		line = trim(line);
 		int n = line.size();
-		if (line[0] == '\n')
+		if (line.empty())
 			continue;
 		if (line[0] == '{' && line[n - 1] == '}')
 		{ // keywords
@@ -422,7 +422,7 @@ void InputParser::parse()
 		lineNum++;
 		line = trim(line);
 		int n = line.size();
-		if (line[0] == '\n')
+		if (line.empty())
 			continue;
 		if (line[0] == '{' && line[n - 1] == '}')
 		{ // keywords
