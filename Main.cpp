@@ -12,87 +12,115 @@
 using namespace std;
 using namespace LexicalAnalyzer;
 
-int main()
-{
+int main() {
 
     //------------------------------------- 1. input parsing -------------------------------------//
-
-    InputParser parser("input.txt");
+    InputParser parser("C:\\Users\\Lenovo\\Desktop\\f2.txt");
     parser.parse();
 
-    //------------------------------------------ 2. NFA ------------------------------------------//
 
+    //------------------------------------------ 2. NFA ------------------------------------------//
     NFA nfa = parser.getCombinedNFA();
     map<int, string> priorityStrings = parser.getPriorityStrings();
     map<pair<int, char>, set<int>> nfaTransitions = nfa.getNfaTransitions();
     set<char> alphabet = nfa.getAlphabet();
     map<int, int> nfaFinalStates = nfa.getStatePriorities();
 
-    //------------------------------------------ 3. DFA ------------------------------------------//
 
-    DFA dfa = DFA(nfaTransitions, alphabet, nfaFinalStates);
+    //------------------------------------------ 3. DFA ------------------------------------------//
+    DFA dfa = DFA(nfaTransitions,alphabet,nfaFinalStates);
     map<pair<int, char>, int> dfaTransitions = dfa.getDFA();
     map<int, int> dfaFinalStates = dfa.getDFAFinalStates();
 
+
     //------------------------------------ 4. Generate tokens ------------------------------------//
+    string path = "C:\\Users\\Lenovo\\Desktop\\file1.txt";
+    tokenGenerator t = tokenGenerator(priorityStrings,dfaTransitions,dfaFinalStates,path);
 
-    string path = "file1.txt";
-    tokenGenerator t = tokenGenerator(priorityStrings, dfaTransitions, dfaFinalStates, path);
-    set<string> ids = t.getIds();
-    vector<string> tokens = t.getTokens();
-    vector<string> values = t.getValues();
-    vector<string> errors = t.getErrors();
 
-    //----------------------------------------- 5. Output -----------------------------------------//
-    // 5.1 DFA table :
-    ofstream outputFile1("DFA.txt");
-    for (const auto &ele : dfa.getDFAStates())
-    {
-        for (const auto &ch : alphabet)
-        {
-            if (ch != '\0')
-            {
-                if (dfaTransitions.find(make_pair(ele.first, ch)) != dfaTransitions.end())
-                    outputFile1 << "state  " << ele.first << " --(" << ch << ")-->: state " << dfaTransitions[make_pair(ele.first, ch)] << endl;
-                else
-                    outputFile1 << "state  " << ele.first << " --(" << ch << ")-->: Dead state" << endl;
+    //----------------------------------------- 5. LL(1) ------------------------------------------//
+    string grammerPath = "enter your grammer file path";
+              // use the prev path for grammer and return nrxt outpts pleas
+    vector<std::string> terminals;
+    vector<std::string> nonTerminals;
+    map<std::string, std::vector<std::string>> CFG;
+    string start ;
+
+
+    //-------------------------------------- 6. First&Follow --------------------------------------//
+    FirstFollow grammar;
+    grammar.terminals = terminals;
+    grammar.nonTerminals = nonTerminals;
+    grammar.CFG = CFG;
+    map<string, vector<string>> first = grammar.computeFirstSets();
+    map<string, vector<string>> follow = grammar.computeFollowSets();
+
+
+    //-------------------------------------- 7. create table --------------------------------------//
+       // use first , follow , CFG , terminals and nonTerminals to outpt the next please 
+    map<pair<string,string>,vector<string>> table ;
+
+
+    //------------------------------------- 8. stack handling -------------------------------------//
+    ParserOutput po = ParserOutput(terminals,nonTerminals,start,t,table);
+    vector<vector<string>> leftmostDerivation = po.getOut;
+
+
+    //----------------------------------------- 9. Output -----------------------------------------//
+        //9.1 DFA table :
+        ofstream outputFile1("DFA.txt");
+        for (const auto& ele : dfa.getDFAStates()) {
+            for (const auto& ch : alphabet) {
+                if(ch!='\0'){
+                    if(dfaTransitions.find(make_pair(ele.first,ch))!=dfaTransitions.end())
+                        outputFile1 << "state  " << ele.first<< " --(" << ch << ")-->: state " << dfaTransitions[make_pair(ele.first,ch)] << endl;
+                    else
+                        outputFile1 << "state  " << ele.first<< " --(" << ch << ")-->: Dead state"  << endl;
+                }
+
+            }
+            outputFile1 << "--------------------------------------------------------------------------------------------" << endl;
+
+        }
+        outputFile1.close();
+        
+        //9.2 Tokens :
+        set<string> ids = t.getIds() ;
+        vector<string> tokens = t.getTokens();
+        vector<string> values = t.getValues();
+        vector<string> errors = t.getErrors();
+        ofstream outputFile2("Tokens.txt");
+        int to =0 , e =0 , v=0;
+        for (auto ct: t.getTypes()) {
+            if(ct==0) {
+                outputFile2 << "error" << endl;
+            } else{
+                outputFile2 << tokens[to] << endl;
+                to++;
             }
         }
-        outputFile1 << "--------------------------------------------------------------------------------------------" << endl;
-    }
-    outputFile1.close();
+        outputFile2.close();
+        //9.3 Values :
+        ofstream outputFile3("Values.txt");
+        for (auto ct: t.getTypes()) {
+            if(ct==0) {
+                outputFile3 << errors[e] << endl;
+                e++;
+            } else{
+                outputFile3 << values[v] << endl;
+                v++;
+            }
+        }
+        outputFile3.close();   
 
-    // 5.2 Tokens :
-    ofstream outputFile2("Tokens.txt");
-    int to = 0, e = 0, v = 0;
-    for (auto ct : t.getTypes())
-    {
-        if (ct == 0)
-        {
-            outputFile2 << "error" << endl;
+        //9.4 leftmostDerivation :
+        ofstream outputFile3("leftmostDerivation.txt");
+        for (auto s: leftmostDerivation) {
+            for (auto w: s) {
+                cout<<w<<" ";
+            }
+            cout<<endl;
         }
-        else
-        {
-            outputFile2 << tokens[to] << endl;
-            to++;
-        }
-    }
-    outputFile2.close();
+        outputFile3.close();   
 
-    // 5.3 Values :
-    ofstream outputFile3("Values.txt");
-    for (auto ct : t.getTypes())
-    {
-        if (ct == 0)
-        {
-            outputFile3 << errors[e] << endl;
-            e++;
-        }
-        else
-        {
-            outputFile3 << values[v] << endl;
-            v++;
-        }
-    }
-    outputFile3.close();
 }
