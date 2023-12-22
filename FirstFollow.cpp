@@ -3,8 +3,9 @@
 #include <map>
 #include <algorithm>
 #include <iterator>
-
 #include "FirstFollow.h"
+
+
 using namespace std;
 
 
@@ -181,254 +182,254 @@ map<string, vector<string>> FirstFollow :: computeFollowSets()
     return follow;
 }
 
-int main()
-{
-    // Create an instance of the LL1Grammar class
-    FirstFollow grammar;
+// int main()
+// {
+//     // Create an instance of the LL1Grammar class
+//     FirstFollow grammar;
 
-    cout << "Test Example one" << endl ;
+//     cout << "Test Example one" << endl ;
 
-    // Define your grammar rules here
-    grammar.terminals = {"+", "*", ")", "(", "id"};
-    grammar.nonTerminals = {"E", "E'", "T", "T'", "F"};
-    grammar.CFG = {
-            {"E", {"T E'"}},
-            {"E'", {"+ T E'", ""}},
-            {"T", {"F T'"}},
-            {"T'", {"* F T'", ""}},
-            {"F", {"( E )", "id"}}
-    };
-    map<string, vector<string>> firstSets = grammar.computeFirstSets();
+//     // Define your grammar rules here
+//     grammar.terminals = {"+", "*", ")", "(", "id"};
+//     grammar.nonTerminals = {"E", "E'", "T", "T'", "F"};
+//     grammar.CFG = {
+//             {"E", {"T E'"}},
+//             {"E'", {"+ T E'", ""}},
+//             {"T", {"F T'"}},
+//             {"T'", {"* F T'", ""}},
+//             {"F", {"( E )", "id"}}
+//     };
+//     map<string, vector<string>> firstSets = grammar.computeFirstSets();
 
-    for (const auto& pair : firstSets) {
-        cout << "FIRST(" << pair.first << "): { ";
-        for (const string& s : pair.second) {
-            cout << s << " ";
-        }
-        cout << "}\n";
-    }
-    cout << "\n";
+//     for (const auto& pair : firstSets) {
+//         cout << "FIRST(" << pair.first << "): { ";
+//         for (const string& s : pair.second) {
+//             cout << s << " ";
+//         }
+//         cout << "}\n";
+//     }
+//     cout << "\n";
 
-    // Calculate FOLLOW sets
-    map<string, vector<string>> followSets = grammar.computeFollowSets();
+//     // Calculate FOLLOW sets
+//     map<string, vector<string>> followSets = grammar.computeFollowSets();
 
-    for (const auto& pair : followSets) {
-        cout << "FOllOW(" << pair.first << "): { ";
-        for (const string& s : pair.second) {
-            cout << s << " ";
-        }
-        cout << "}\n";
-    }
-    cout << "\n";
-    cout << "-----------------------------------"<<endl;
-
-
-    // Define your grammar rules here
-
-    cout << "Test Example two" << endl ;
-    FirstFollow grammar_1;
-    grammar_1.terminals = {"i" ,"t" , "e" , "b" , "a" };
-    grammar_1.nonTerminals = {"E", "S" , "C"};
-    grammar_1.CFG = {
-            {"S", {"i C t S E" , "a"}},
-            {"E" , {"e S" , ""}},
-            {"C" , {"b"}}
-    };
-
-    grammar_1.computeFirstSets();
-
-    // Display the FIRST sets for each non-terminal
-    firstSets = grammar_1.computeFirstSets();
-    for (const auto& pair : firstSets) {
-        cout << "FIRST(" << pair.first << "): { ";
-        for (const string& s : pair.second) {
-            cout << s << " ";
-        }
-        cout << "}\n";
-    }
-    cout << "\n";
-
-    // Calculate FOLLOW sets
-    followSets = grammar_1.computeFollowSets();
-
-    for (const auto& pair : followSets) {
-        cout << "FOllOW(" << pair.first << "): { ";
-        for (const string& s : pair.second) {
-            cout << s << " ";
-        }
-        cout << "}\n";
-    }
-    cout << "\n";
-    cout << "-----------------------------------"<<endl;
+//     for (const auto& pair : followSets) {
+//         cout << "FOllOW(" << pair.first << "): { ";
+//         for (const string& s : pair.second) {
+//             cout << s << " ";
+//         }
+//         cout << "}\n";
+//     }
+//     cout << "\n";
+//     cout << "-----------------------------------"<<endl;
 
 
-    cout << "Test Example three" << endl ;
+//     // Define your grammar rules here
 
-    FirstFollow grammar_2;
-    grammar_2.terminals = {"s", "u", "v", "t", "b"};
-    grammar_2.nonTerminals = {"S", "R", "U", "V", "T"};
-    grammar_2.CFG = {
-            {"S", {"R T"}},
-            {"R", {"s U R b", ""}},
-            {"U", {"u U" , ""}},
-            {"V", {"v V", ""}},
-            {"T", {"V t T", ""}}
-    };
+//     cout << "Test Example two" << endl ;
+//     FirstFollow grammar_1;
+//     grammar_1.terminals = {"i" ,"t" , "e" , "b" , "a" };
+//     grammar_1.nonTerminals = {"E", "S" , "C"};
+//     grammar_1.CFG = {
+//             {"S", {"i C t S E" , "a"}},
+//             {"E" , {"e S" , ""}},
+//             {"C" , {"b"}}
+//     };
 
+//     grammar_1.computeFirstSets();
 
-    // Display the FIRST sets for each non-terminal
-    firstSets = grammar_2.computeFirstSets();
-    for (const auto& pair : firstSets) {
-        cout << "FIRST(" << pair.first << "): { ";
-        for (const string& s : pair.second) {
-            cout << s << " ";
-        }
-        cout << "}\n";
-    }
-    cout << "\n";
+//     // Display the FIRST sets for each non-terminal
+//     firstSets = grammar_1.computeFirstSets();
+//     for (const auto& pair : firstSets) {
+//         cout << "FIRST(" << pair.first << "): { ";
+//         for (const string& s : pair.second) {
+//             cout << s << " ";
+//         }
+//         cout << "}\n";
+//     }
+//     cout << "\n";
 
-    // Calculate FOLLOW sets
-    followSets = grammar_2.computeFollowSets();
+//     // Calculate FOLLOW sets
+//     followSets = grammar_1.computeFollowSets();
 
-    for (const auto& pair : followSets) {
-        cout << "FOllOW(" << pair.first << "): { ";
-        for (const string& s : pair.second) {
-            cout << s << " ";
-        }
-        cout << "}\n";
-    }
-    cout << "\n";
-
-
-    cout << "-----------------------------------"<<endl;
-    // Define your grammar rules here
+//     for (const auto& pair : followSets) {
+//         cout << "FOllOW(" << pair.first << "): { ";
+//         for (const string& s : pair.second) {
+//             cout << s << " ";
+//         }
+//         cout << "}\n";
+//     }
+//     cout << "\n";
+//     cout << "-----------------------------------"<<endl;
 
 
-    cout << "Test Example four" << endl ;
-    FirstFollow grammar_3;
-    grammar_3.terminals = {"or" ,"not" , "and" , "(" , ")"  , "true" , "false"};
-    grammar_3.nonTerminals = {"bexpr", "bexpr'" , "bterm" , "bterm'" , "bfactor"};
-    grammar_3.CFG = {
+//     cout << "Test Example three" << endl ;
 
-            {"bexpr", {"bterm bexpr'"}},
-            {"bexpr'", {"or bterm bexpr'" , ""}},
-            {"bterm", {"bfactor bterm'"}},
-            {"bterm'", {"and bfactor bterm'" , ""}},
-            {"bfactor", {"not bfactor" , "( bexpr )" , "true" , "false"}}
-
-    };
-
-
-    // Display the FIRST sets for each non-terminal
-    firstSets = grammar_3.computeFirstSets();
-    for (const auto& pair : firstSets) {
-        cout << "FIRST(" << pair.first << "): { ";
-        for (const string& s : pair.second) {
-            cout << s << " ";
-        }
-        cout << "}\n";
-    }
-    cout << "\n";
-
-    // Calculate FOLLOW sets
-    followSets = grammar_3.computeFollowSets();
-
-    // Display the FOLLOW sets for each non-terminal
-    for (const auto& pair : followSets) {
-        cout << "FOllOW(" << pair.first << "): { ";
-        for (const string& s : pair.second) {
-            cout << s << " ";
-        }
-        cout << "}\n";
-    }
-    cout << "\n";
+//     FirstFollow grammar_2;
+//     grammar_2.terminals = {"s", "u", "v", "t", "b"};
+//     grammar_2.nonTerminals = {"S", "R", "U", "V", "T"};
+//     grammar_2.CFG = {
+//             {"S", {"R T"}},
+//             {"R", {"s U R b", ""}},
+//             {"U", {"u U" , ""}},
+//             {"V", {"v V", ""}},
+//             {"T", {"V t T", ""}}
+//     };
 
 
-    cout << "-----------------------------------"<<endl;
+//     // Display the FIRST sets for each non-terminal
+//     firstSets = grammar_2.computeFirstSets();
+//     for (const auto& pair : firstSets) {
+//         cout << "FIRST(" << pair.first << "): { ";
+//         for (const string& s : pair.second) {
+//             cout << s << " ";
+//         }
+//         cout << "}\n";
+//     }
+//     cout << "\n";
+
+//     // Calculate FOLLOW sets
+//     followSets = grammar_2.computeFollowSets();
+
+//     for (const auto& pair : followSets) {
+//         cout << "FOllOW(" << pair.first << "): { ";
+//         for (const string& s : pair.second) {
+//             cout << s << " ";
+//         }
+//         cout << "}\n";
+//     }
+//     cout << "\n";
 
 
-    // Define your grammar rules here
-
-    cout << "Test Example five" << endl ;
-    FirstFollow grammar_4;
-    grammar_4.terminals = {"+" , "*" , "(" , ")" , "a" , "b"};
-    grammar_4.nonTerminals = {"E" , "E'" , "T" , "T'" , "F" , "F'" , "P"};
-    grammar_4.CFG = {
-
-            {"E", {"T E'"}},
-            {"E'", {"+ E" , ""}},
-            {"T", {"F T'"}},
-            {"T'", {"T" , ""}},
-            {"F", {"P F'"}},
-            {"F'", {"* F" , ""}},
-            {"P", {"( E )" , "a" , "b" , "epsilon"}}
-
-    };
+//     cout << "-----------------------------------"<<endl;
+//     // Define your grammar rules here
 
 
-    // Display the FIRST sets for each non-terminal
-    firstSets =grammar_4.computeFirstSets();
-    for (const auto& pair : firstSets) {
-        cout << "FIRST(" << pair.first << "): { ";
-        for (const string& s : pair.second) {
-            cout << s << " ";
-        }
-        cout << "}\n";
-    }
-    cout << "\n";
+//     cout << "Test Example four" << endl ;
+//     FirstFollow grammar_3;
+//     grammar_3.terminals = {"or" ,"not" , "and" , "(" , ")"  , "true" , "false"};
+//     grammar_3.nonTerminals = {"bexpr", "bexpr'" , "bterm" , "bterm'" , "bfactor"};
+//     grammar_3.CFG = {
 
-    // Calculate FOLLOW sets
-    followSets = grammar_4.computeFollowSets();
+//             {"bexpr", {"bterm bexpr'"}},
+//             {"bexpr'", {"or bterm bexpr'" , ""}},
+//             {"bterm", {"bfactor bterm'"}},
+//             {"bterm'", {"and bfactor bterm'" , ""}},
+//             {"bfactor", {"not bfactor" , "( bexpr )" , "true" , "false"}}
 
-    // Display the FOLLOW sets for each non-terminal
-    for (const auto& pair : followSets) {
-        cout << "FOllOW(" << pair.first << "): { ";
-        for (const string& s : pair.second) {
-            cout << s << " ";
-        }
-        cout << "}\n";
-    }
-    cout << "\n";
-    cout << "-----------------------------------"<<endl;
+//     };
 
 
-    // Define your grammar rules here
+//     // Display the FIRST sets for each non-terminal
+//     firstSets = grammar_3.computeFirstSets();
+//     for (const auto& pair : firstSets) {
+//         cout << "FIRST(" << pair.first << "): { ";
+//         for (const string& s : pair.second) {
+//             cout << s << " ";
+//         }
+//         cout << "}\n";
+//     }
+//     cout << "\n";
 
-    cout << "Test Example six" << endl ;
+//     // Calculate FOLLOW sets
+//     followSets = grammar_3.computeFollowSets();
 
-    FirstFollow grammar_5;
-    grammar_5.terminals = {"b" ,"e" , "a" , "c" , "d" };
-    grammar_5.nonTerminals = {"S" , "A"};
-    grammar_5.CFG = {
-            {"S", {"A b S" , "e" , ""}},
-            {"A" , {"a" , "c A d"}}
+//     // Display the FOLLOW sets for each non-terminal
+//     for (const auto& pair : followSets) {
+//         cout << "FOllOW(" << pair.first << "): { ";
+//         for (const string& s : pair.second) {
+//             cout << s << " ";
+//         }
+//         cout << "}\n";
+//     }
+//     cout << "\n";
 
-    };
 
-    // Display the FIRST sets for each non-terminal
-    firstSets = grammar_5.computeFirstSets();
-    for (const auto& pair : firstSets) {
-        cout << "FIRST(" << pair.first << "): { ";
-        for (const string& s : pair.second) {
-            cout << s << " ";
-        }
-        cout << "}\n";
-    }
-    cout << "\n";
+//     cout << "-----------------------------------"<<endl;
 
-    // Calculate FOLLOW sets
-    followSets = grammar_5.computeFollowSets();
 
-    // Display the FOLLOW sets for each non-terminal
-    for (const auto& pair : followSets) {
-        cout << "FOllOW(" << pair.first << "): { ";
-        for (const string& s : pair.second) {
-            cout << s << " ";
-        }
-        cout << "}\n";
-    }
-    cout << "\n";
+//     // Define your grammar rules here
 
-    cout << "-----------------------------------"<<endl;
-    return 0;
-}
+//     cout << "Test Example five" << endl ;
+//     FirstFollow grammar_4;
+//     grammar_4.terminals = {"+" , "*" , "(" , ")" , "a" , "b"};
+//     grammar_4.nonTerminals = {"E" , "E'" , "T" , "T'" , "F" , "F'" , "P"};
+//     grammar_4.CFG = {
+
+//             {"E", {"T E'"}},
+//             {"E'", {"+ E" , ""}},
+//             {"T", {"F T'"}},
+//             {"T'", {"T" , ""}},
+//             {"F", {"P F'"}},
+//             {"F'", {"* F" , ""}},
+//             {"P", {"( E )" , "a" , "b" , "epsilon"}}
+
+//     };
+
+
+//     // Display the FIRST sets for each non-terminal
+//     firstSets =grammar_4.computeFirstSets();
+//     for (const auto& pair : firstSets) {
+//         cout << "FIRST(" << pair.first << "): { ";
+//         for (const string& s : pair.second) {
+//             cout << s << " ";
+//         }
+//         cout << "}\n";
+//     }
+//     cout << "\n";
+
+//     // Calculate FOLLOW sets
+//     followSets = grammar_4.computeFollowSets();
+
+//     // Display the FOLLOW sets for each non-terminal
+//     for (const auto& pair : followSets) {
+//         cout << "FOllOW(" << pair.first << "): { ";
+//         for (const string& s : pair.second) {
+//             cout << s << " ";
+//         }
+//         cout << "}\n";
+//     }
+//     cout << "\n";
+//     cout << "-----------------------------------"<<endl;
+
+
+//     // Define your grammar rules here
+
+//     cout << "Test Example six" << endl ;
+
+//     FirstFollow grammar_5;
+//     grammar_5.terminals = {"b" ,"e" , "a" , "c" , "d" };
+//     grammar_5.nonTerminals = {"S" , "A"};
+//     grammar_5.CFG = {
+//             {"S", {"A b S" , "e" , ""}},
+//             {"A" , {"a" , "c A d"}}
+
+//     };
+
+//     // Display the FIRST sets for each non-terminal
+//     firstSets = grammar_5.computeFirstSets();
+//     for (const auto& pair : firstSets) {
+//         cout << "FIRST(" << pair.first << "): { ";
+//         for (const string& s : pair.second) {
+//             cout << s << " ";
+//         }
+//         cout << "}\n";
+//     }
+//     cout << "\n";
+
+//     // Calculate FOLLOW sets
+//     followSets = grammar_5.computeFollowSets();
+
+//     // Display the FOLLOW sets for each non-terminal
+//     for (const auto& pair : followSets) {
+//         cout << "FOllOW(" << pair.first << "): { ";
+//         for (const string& s : pair.second) {
+//             cout << s << " ";
+//         }
+//         cout << "}\n";
+//     }
+//     cout << "\n";
+
+//     cout << "-----------------------------------"<<endl;
+//     return 0;
+// }
