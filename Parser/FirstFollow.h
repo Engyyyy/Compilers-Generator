@@ -16,6 +16,7 @@ namespace Parser
     public:
         vector<std::string> terminals;
         vector<std::string> nonTerminals;
+        map<string, vector<string>> first_complementary;
         map<std::string, std::vector<std::string>> CFG;
         map<std::string, std::vector<std::string>> first;
         map<std::string, std::vector<std::string>> follow;
