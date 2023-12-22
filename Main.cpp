@@ -10,6 +10,7 @@
 #include "Lexical Analyzer/input_parser.h"
 #include "Parser/FirstFollow.h"
 #include "Parser/ParserOutput.h"
+#include "Parser/ParsingTable.h"
 
 using namespace std;
 using namespace LexicalAnalyzer;
@@ -57,13 +58,13 @@ int main() {
     grammar.CFG = CFG;
     map<string, vector<string>> first = grammar.computeFirstSets();
     map<string, vector<string>> follow = grammar.computeFollowSets();
-    map<string, vector<string>> first_comp = grammar.first_complementary;
+    map<string, vector<string>> comp = grammar.first_complementary;
 
 
     //-------------------------------------- 7. create table --------------------------------------//
-       // use first , follow , CFG , terminals and nonTerminals to outpt the next please 
     map<pair<string,string>,vector<string>> table ;
-
+    ParsingTable parsingTable(first,follow,comp);
+    table=parsingTable.getTable();
 
     //------------------------------------- 8. stack handling -------------------------------------//
     ParserOutput po = ParserOutput(terminals,nonTerminals,start,t,table);
