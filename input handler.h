@@ -33,6 +33,9 @@ private:
 
     void matchAllSplitTokens();
 
+    bool match2(std::string str, bool isError);
+    void match3(std::string str, bool isError);
+
 public:
     tokenGenerator(const std::map<int, std::string>& prio,
                    const std::map<std::pair<int, char>, int>& dfa,
@@ -52,7 +55,8 @@ public:
     // Getter for errors
     std::vector<std::string> getErrors() const;
 
-    bool match2(std::string str, bool isError);
+    std::string getNext();
+
 };
 
 #endif  // TOKENGENERATOR_H
