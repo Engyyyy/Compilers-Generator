@@ -10,6 +10,7 @@
 #include "NFA.h"
 
 using namespace std;
+using namespace LexicalAnalyzer;
 
 void InputParser::preprocessKeywords(string line)
 {
