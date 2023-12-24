@@ -323,33 +323,3 @@ map<string, vector<string>> GrammarParser::getProductions()
 {
     return formattedProds;
 }
-
-int main()
-{
-    GrammarParser grammarParser("Grammar Rules.txt");
-    for (auto p : grammarParser.getProductions())
-    {
-        cout << p.first << " -> ";
-        vector<string> rules = p.second;
-        for (int i = 0; i < rules.size(); i++)
-        {
-            string rule = rules[i];
-            if (rule.empty())
-            {
-                cout << "EPSILON";
-            }
-            cout << rule;
-            if (i < rules.size() - 1)
-                cout << " | ";
-        }
-        cout << endl;
-    }
-    cout << "_____________________________________________________________________" << endl;
-    for (auto t : grammarParser.getTerminals())
-        cout << t << " ";
-    cout << endl;
-    for (auto nt : grammarParser.getNonTerminals())
-        cout << nt << " ";
-    cout << endl;
-    cout << grammarParser.getStartSymbol();
-}

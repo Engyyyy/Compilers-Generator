@@ -35,6 +35,7 @@ namespace Parser
         string getStartSymbol();
         map<string, vector<string>> getProductions();
         GrammarParser(string inPath);
+        
         void parse();
     };
 }

@@ -13,11 +13,15 @@ namespace Parser
     private:
         map<pair<string, string>, vector<string>> table;
         bool valid;
+        map<string, vector<string>> fir;
+        map<string, vector<string>> fol;
 
     public:
         ParsingTable(map<string, vector<string>> first, map<string, vector<string>> follow, map<string, vector<string>> comp);
         bool isValid();
         map<pair<string, string>, vector<string>> getTable();
+        void printFirstFollow();
+        void csvTable(vector<std::string> terminals , vector<std::string> nonterminals);
     };
 
 }

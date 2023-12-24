@@ -7,6 +7,14 @@
 using namespace std;
 using namespace LexicalAnalyzer;
 
+DFA::DFA(const map<pair<int, char>, set<int>> &nfa,
+         const set<char> &alph,
+         const map<int, int> nfaFinal) : NFA(nfa), alphabet(alph), nfaFinalStates(nfaFinal)
+{
+    subsetConstructionAlgorithm();
+    dfaMinimization();
+}
+
 set<int> DFA::epsilonClosure(int state)
 {
     set<int> closures = {state};
@@ -220,14 +228,6 @@ void DFA::dfaMinimization()
             dfaStates[groupName] = states;
         }
     }
-}
-
-DFA::DFA(const map<pair<int, char>, set<int>> &nfa,
-         const set<char> &alph,
-         const map<int, int> nfaFinal) : NFA(nfa), alphabet(alph), nfaFinalStates(nfaFinal)
-{
-    subsetConstructionAlgorithm();
-    dfaMinimization();
 }
 
 map<int, set<int>> DFA::getDFAStates() const
