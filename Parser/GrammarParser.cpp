@@ -61,6 +61,7 @@ void GrammarParser::eliminateLeftRecursionStep(string Ai, vector<vector<string>>
     vector<string> epsilonRule = {""};
     newNonTerminalRules.push_back(epsilonRule);
     productions[newNonTerminal] = newNonTerminalRules;
+    nonTerminals.push_back(newNonTerminal);
 }
 
 void GrammarParser::leftFactorStep(string Ai, vector<vector<string>> AiRules)
@@ -93,6 +94,7 @@ void GrammarParser::leftFactorStep(string Ai, vector<vector<string>> AiRules)
                 newNonTerminalRules.push_back(newRule);
             }
             productions[newNonTerminal] = newNonTerminalRules;
+            nonTerminals.push_back(newNonTerminal);
         }
         else
         {
@@ -137,6 +139,23 @@ void GrammarParser::eliminateLeftRecursion()
 
 void GrammarParser::leftFactor()
 {
+    // for (auto nT : nonTerminals)
+    // {
+    //     vector<vector<string>> rules = productions[nT];
+    //     int i = 0;
+    //     while (i < rules.size())
+    //     {
+    //         vector<string> &rule = rules[i];
+    //         if (terminalsSet.count(rule[0]))
+    //             i++;
+    //         else
+    //         {
+    //             vector<vector<string>> substitution = productions[rule[0]];
+    //             substitute(rule, rules, substitution);
+    //         }
+    //     }
+    //     productions[nT] = rules;
+    // }
     for (auto nT : nonTerminals)
     {
         leftFactorStep(nT, productions[nT]);
