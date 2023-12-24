@@ -17,7 +17,9 @@ GrammarParser::GrammarParser(string inPath)
     for (auto nonTerminal : derivedNonTerminalsSet)
         nonTerminals.push_back(nonTerminal);
 
-    convertToPredictiveGrammar(PREDICTIVE_GRAMMAR_PROCEDURE::ELIMINATE_LEFT_RECURSION);
+    eliminateLeftRecursion();
+    leftFactor();
+    formatProductions();
 }
 
 void GrammarParser::eliminateLeftRecursionStep(string Ai, vector<vector<string>> AiRules)
@@ -63,9 +65,54 @@ void GrammarParser::eliminateLeftRecursionStep(string Ai, vector<vector<string>>
 
 void GrammarParser::leftFactorStep(string Ai, vector<vector<string>> AiRules)
 {
+    vector<vector<string>> newAiRules;
+    string newNonTerminal = Ai;
+    map<string, vector<vector<string>>> groups;
+    for (auto AiRule : AiRules)
+    {
+        string start = AiRule[0];
+        groups[start].push_back(AiRule);
+    }
+    for (auto group : groups)
+    {
+        string start = group.first;
+        vector<vector<string>> commonStartRules = group.second;
+        if (commonStartRules.size() > 1)
+        {
+            newNonTerminal += "\"";
+            vector<string> LL1Rule = {start, newNonTerminal};
+            newAiRules.push_back(LL1Rule);
+
+            vector<vector<string>> newNonTerminalRules;
+            for (auto rule : commonStartRules)
+            {
+                vector<string> newRule;
+                newRule.insert(newRule.end(), rule.begin() + 1, rule.end());
+                if (newRule.empty())
+                    newRule.push_back("");
+                newNonTerminalRules.push_back(newRule);
+            }
+            productions[newNonTerminal] = newNonTerminalRules;
+        }
+        else
+        {
+            newAiRules.push_back(commonStartRules[0]);
+        }
+    }
+    productions[Ai] = newAiRules;
 }
 
-void GrammarParser::convertToPredictiveGrammar(PREDICTIVE_GRAMMAR_PROCEDURE procedure)
+void GrammarParser::substitute(vector<string> &rule, vector<vector<string>> &allRules, vector<vector<string>> &substitution)
+{
+    for (auto &s : substitution)
+    {
+        s.insert(s.end(), rule.begin() + 1, rule.end());
+    }
+    rule = substitution[0];
+    allRules.insert(allRules.end(), substitution.begin() + 1, substitution.end());
+}
+
+void GrammarParser::eliminateLeftRecursion()
 {
     for (int i = 0; i < nonTerminals.size(); i++)
     {
@@ -80,19 +127,19 @@ void GrammarParser::convertToPredictiveGrammar(PREDICTIVE_GRAMMAR_PROCEDURE proc
                 if (AiRule[0] == Aj)
                 {
                     vector<vector<string>> substitution = productions[Aj];
-                    for (auto &rule : substitution)
-                    {
-                        rule.insert(rule.end(), AiRule.begin() + 1, AiRule.end());
-                    }
-                    AiRule = substitution[0];
-                    AiRules.insert(AiRules.end(), substitution.begin() + 1, substitution.end());
+                    substitute(AiRule, AiRules, substitution);
                 }
             }
         }
-        if (procedure == ELIMINATE_LEFT_RECURSION)
-            eliminateLeftRecursionStep(Ai, AiRules);
-        else if (procedure == LEFT_FACTOR)
-            leftFactorStep(Ai, AiRules);
+        eliminateLeftRecursionStep(Ai, AiRules);
+    }
+}
+
+void GrammarParser::leftFactor()
+{
+    for (auto nT : nonTerminals)
+    {
+        leftFactorStep(nT, productions[nT]);
     }
 }
 
@@ -106,6 +153,31 @@ bool GrammarParser::verifyCompleteGrammar()
         }
     }
     return true;
+}
+
+void GrammarParser::formatProductions()
+{
+    for (auto p : productions)
+    {
+        string nT = p.first;
+        vector<vector<string>> rules = p.second;
+        vector<string> formattedRules;
+        for (auto rule : rules)
+        {
+            string formattedRule;
+            for (int i = 0; i < rule.size(); i++)
+            {
+                string token = rule[i];
+                formattedRule += token;
+                if (i < rule.size() - 1)
+                {
+                    formattedRule += " ";
+                }
+            }
+            formattedRules.push_back(formattedRule);
+        }
+        formattedProds[nT] = formattedRules;
+    }
 }
 
 void GrammarParser::parse(string inPath)
@@ -143,7 +215,6 @@ void GrammarParser::parse(string inPath)
             // first rule
             if (rules.empty())
                 startSymbol = currNonTerminal;
-
             inFile >> token;
             assert(token == "=");
             rules.clear();
@@ -229,9 +300,9 @@ string GrammarParser::getStartSymbol()
     return startSymbol;
 }
 
-map<string, vector<vector<string>>> GrammarParser::getProductions()
+map<string, vector<string>> GrammarParser::getProductions()
 {
-    return productions;
+    return formattedProds;
 }
 
 int main()
@@ -240,15 +311,17 @@ int main()
     for (auto p : grammarParser.getProductions())
     {
         cout << p.first << " -> ";
-        for (auto rule : p.second)
+        vector<string> rules = p.second;
+        for (int i = 0; i < rules.size(); i++)
         {
-            for (auto token : rule)
+            string rule = rules[i];
+            if (rule.empty())
             {
-                if (token.empty())
-                    cout << "EPOSILON";
-                cout << token << " ";
+                cout << "EPSILON";
             }
-            cout << " | ";
+            cout << rule;
+            if (i < rules.size() - 1)
+                cout << " | ";
         }
         cout << endl;
     }
