@@ -1,13 +1,16 @@
-#include <iostream>
-#include <vector>
 #include <map>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <sstream>
 #include "ParsingTable.h"
 
 using namespace std;
 
 using namespace Parser;
 
-ParsingTable::ParsingTable(map<string, vector<string>> first, map<string, vector<string>> follow, map<string, vector<string>> comp)
+ParsingTable::ParsingTable(map<string, vector<string>> first, map<string, vector<string>> follow, map<string, vector<string>> comp):
+fir(first),fol(follow)
 {
     valid = true;
     bool sync ;
@@ -20,22 +23,25 @@ ParsingTable::ParsingTable(map<string, vector<string>> first, map<string, vector
                 sync= false;
                 for(const auto& s : follow[pair.first]) {
                     if (!table[make_pair(pair.first, s)].empty()) {
-                        valid = false; // not LL1
+                        string ss = table[make_pair(pair.first, s)][0];
+                        if(ss!="sync"){
+                            valid = false; // not LL1
                         table.clear();
                         return;
+                        }
+                        else
+                          table[make_pair(pair.first, s)][0]=comp[pair.first][i];
+                          
                     }
-                    table[make_pair(pair.first, s)].push_back(comp[pair.first][i]);
+                    else table[make_pair(pair.first, s)].push_back(comp[pair.first][i]);
                 }
             }
         }
         if(sync){
             for(const auto& s : follow[pair.first]){
-                if(!table[make_pair(pair.first, s)].empty()){
-                    valid= false; // not LL1
-                    table.clear();
-                    return;
+                if(table[make_pair(pair.first, s)].empty()){
+                    table[make_pair(pair.first, s)].push_back("sync") ;
                 }
-                table[make_pair(pair.first, s)].push_back("sync") ;
             }
         }
     }
@@ -52,11 +58,56 @@ map<pair<string, string>, vector<string>> ParsingTable::getTable()
 }
 
 
-////print table in a proper way
-//for (const auto& pair : table) {
-//  cout << "table(" << pair.first.first << "," << pair.first.second << "): { ";
-//for (const string& s : pair.second) {
-//  cout << s << " ";
-//}
-//cout << "}\n";
-//}
+void ParsingTable:: printFirstFollow(){
+    ofstream outputFile(".\\output files\\FirstFollow.txt");
+    for (const auto& pair : fir) {
+         outputFile << "FIRST(" << pair.first << "): { ";
+         for (const string& s : pair.second) {
+             outputFile << s << " ";
+         }
+         outputFile << "}\n";
+     }
+     outputFile << "\n";
+
+    for (const auto& pair : fol) {
+         outputFile << "FOllOW(" << pair.first << "): { ";
+         for (const string& s : pair.second) {
+             outputFile << s << " ";
+         }
+         outputFile << "}\n";
+    }
+}
+
+void ParsingTable:: csvTable(vector<std::string> terminals , vector<std::string> nonterminals){
+    const std::string csvFileName = ".\\output files\\table.csv";
+    std::ofstream csvFile1(csvFileName);
+    csvFile1<<" ,";
+    for (const auto& t : terminals)
+        csvFile1 << t << ",";
+    csvFile1<<"\n";
+    for (const auto& nt : nonterminals) {
+        csvFile1 << nt << ",";
+        for (const auto& t : terminals){
+            std::pair<std::string, std::string> searchKey(nt, t);
+            if (table.find(searchKey) != table.end())
+            {
+                string ss = table[searchKey][0];
+                if (ss == ""){
+                    csvFile1<<nt<<" --> "<<"Epsilon ,";
+                }
+                else
+                {
+                    csvFile1<<nt<<" --> "<<ss<<",";
+
+                }
+            }
+            else
+            {
+                csvFile1<<" ,";
+
+            }
+        }
+        csvFile1<<"\n";
+
+    }
+}

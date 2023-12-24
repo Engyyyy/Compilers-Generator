@@ -24,16 +24,19 @@ namespace Parser
         stack<string> inputs;
         stack<string> st;
         LexicalAnalyzer::tokenGenerator t;
-        vector<vector<string>> out;
+        vector<string> out;
         string start;
         vector<string> terminals;
         vector<string> nonTerminals;
+        void run();
+        void getNextInput();
+        string getStackValues();
 
     public:
-        ParserOutput(vector<string> term, vector<string> nonterm, string sta, LexicalAnalyzer::tokenGenerator to, const map<pair<string, string>, vector<string>> m);
-        void getNextInput();
-        void run();
-        vector<vector<string>> getOut;
+        ParserOutput(vector<string> term, vector<string> nonterm, string sta, LexicalAnalyzer::tokenGenerator &to, const map<pair<string, string>, vector<string>> m);
+        vector<string> getOut();
+        LexicalAnalyzer::tokenGenerator getT();
+
     };
 }
 

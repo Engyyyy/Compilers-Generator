@@ -3,6 +3,7 @@
 #include <map>
 #include <set>
 #include <queue>
+#include <stack>
 #include <fstream>
 #include <sstream>
 #include <iterator>
@@ -14,41 +15,82 @@
 using namespace std;
 using namespace Parser;
 
-ParserOutput::ParserOutput(vector<string> term, vector<string> nonterm, string sta, LexicalAnalyzer::tokenGenerator to, const map<pair<string, string>, vector<string>> m)
+// some globals
+std::ofstream csvFile(".\\output files\\Stack.csv");
+string matched ="";
+
+
+
+ParserOutput::ParserOutput(vector<string> term, vector<string> nonterm, string sta, LexicalAnalyzer::tokenGenerator &to, const map<pair<string, string>, vector<string>> m)
     : terminals(term), nonTerminals(nonterm), start(sta), t(to), mp(m)
 {
     st.push("$");
     st.push(start);
+    getNextInput();
     auto it = find(terminals.begin(), terminals.end(), "$");
     if (!(it != terminals.end()))
     {
         terminals.push_back("$");
     }
+    csvFile<<"stack top ,input top , output \n";
+    run();
 }
+
+
 void ParserOutput::getNextInput()
 {
     inputs.push(t.getNext());
 }
+
+string ParserOutput::getStackValues(){
+    string out = "";
+    stack<string> cs;
+    while (st.size()>1)
+    {
+        string curr = st.top();
+        st.pop();
+        out+=curr;
+        out+=" ";
+        cs.push(curr);
+    }
+    while (!cs.empty())
+    {
+        string curr = cs.top();
+        cs.pop();
+        st.push(curr);
+    }
+    return out;
+}
+
+vector<string> ParserOutput:: getOut(){
+    return out;
+}
+
 void ParserOutput::run()
 {
     string st_f = st.top();
     string in_f = inputs.top();
     auto it = find(terminals.begin(), terminals.end(), st_f);
-
+    csvFile<<st_f<<","<<in_f<<",";
     if (it != terminals.end())
     {
-        if (st_f == in_f && in_f == "$")
+        if (st_f == in_f && in_f == "$"){
+            csvFile<<"accept";
             return;
+        }
         else if (st_f == in_f)
         {
-            // match
+            csvFile<<"match \" "<<st_f<<" \"";
             st.pop();
             inputs.pop();
             getNextInput();
+            matched+=st_f;
+            matched+=" ";
         }
         else
         {
             // report error
+            csvFile<<"Error: missing "<<st_f<<" .. inserte it to input ";
             inputs.push(st_f);
         }
     }
@@ -57,29 +99,47 @@ void ParserOutput::run()
         std::pair<std::string, std::string> searchKey(st_f, in_f);
         if (mp.find(searchKey) != mp.end())
         {
-            vector<string> v = mp[searchKey];
-            if (v[0] == "sync")
+            string ss = mp[searchKey][0];
+
+            if (ss == "sync")
             {
                 // report error
+                csvFile<<"Error: sync "<<st_f;
                 st.pop();
             }
-            else if (v[0] == "")
+            else if (ss == "")
             {
                 st.pop();
+                csvFile<<st_f<<" --> Epsilon ";
             }
             else
             {
+                vector<string> v ;
+                std::istringstream iss(ss);
+                std::string word;
+                while (iss >> word) {
+                    v.push_back(word);
+                }
+                csvFile<<st_f<<" --> "<<ss;
                 st.pop();
-                for (int j = v.size() - 1; j >= 0; j--)
+                for (int j = v.size() - 1; j >= 0; j--){
                     st.push(v[j]);
+                }
             }
         }
         else
         {
-            // report error
+            csvFile<<"Error:(illegal "<<st_f<<" ) : discard " <<in_f;
             inputs.pop();
-            getNextInput();
+            if(in_f!="$")
+              getNextInput();
+            else return;
         }
     }
+    csvFile<<"\n";
+    out.push_back(matched+getStackValues());
     run();
+}
+LexicalAnalyzer::tokenGenerator ParserOutput::getT(){
+   return t;
 }
