@@ -8,14 +8,18 @@
 #include "Lexical Analyzer/DFA.h"
 #include "Lexical Analyzer/input handler.h"
 #include "Lexical Analyzer/input_parser.h"
+#include "Parser/FirstFollow.h"
+#include "Parser/ParserOutput.h"
+#include "Parser/ParsingTable.h"
 
 using namespace std;
 using namespace LexicalAnalyzer;
+using namespace Parser;
 
 int main() {
 
     //------------------------------------- 1. input parsing -------------------------------------//
-    InputParser parser("C:\\Users\\Lenovo\\Desktop\\f2.txt");
+    InputParser parser("./f2.txt");
     parser.parse();
 
 
@@ -34,7 +38,7 @@ int main() {
 
 
     //------------------------------------ 4. Generate tokens ------------------------------------//
-    string path = "C:\\Users\\Lenovo\\Desktop\\file1.txt";
+    string path = "./f1.txt";
     tokenGenerator t = tokenGenerator(priorityStrings,dfaTransitions,dfaFinalStates,path);
 
 
@@ -54,16 +58,18 @@ int main() {
     grammar.CFG = CFG;
     map<string, vector<string>> first = grammar.computeFirstSets();
     map<string, vector<string>> follow = grammar.computeFollowSets();
+    map<string, vector<string>> comp = grammar.first_complementary;
 
 
     //-------------------------------------- 7. create table --------------------------------------//
-       // use first , follow , CFG , terminals and nonTerminals to outpt the next please 
     map<pair<string,string>,vector<string>> table ;
-
+    ParsingTable parsingTable(first,follow,comp);
+    table=parsingTable.getTable();
 
     //------------------------------------- 8. stack handling -------------------------------------//
     ParserOutput po = ParserOutput(terminals,nonTerminals,start,t,table);
     vector<vector<string>> leftmostDerivation = po.getOut;
+
 
 
     //----------------------------------------- 9. Output -----------------------------------------//
@@ -114,13 +120,12 @@ int main() {
         outputFile3.close();   
 
         //9.4 leftmostDerivation :
-        ofstream outputFile3("leftmostDerivation.txt");
+        ofstream outputFile4("leftmostDerivation.txt");
         for (auto s: leftmostDerivation) {
             for (auto w: s) {
-                cout<<w<<" ";
+                outputFile4<<w<<" ";
             }
-            cout<<endl;
+            outputFile4<<endl;
         }
-        outputFile3.close();   
-
+        outputFile4.close();
 }
