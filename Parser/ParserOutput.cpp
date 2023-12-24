@@ -106,11 +106,15 @@ void ParserOutput::run()
                 // report error
                 csvFile<<"Error: sync "<<st_f;
                 st.pop();
+                out.push_back(matched+getStackValues());
+
             }
             else if (ss == "")
             {
                 st.pop();
                 csvFile<<st_f<<" --> Epsilon ";
+                out.push_back(matched+getStackValues());
+
             }
             else
             {
@@ -125,6 +129,7 @@ void ParserOutput::run()
                 for (int j = v.size() - 1; j >= 0; j--){
                     st.push(v[j]);
                 }
+                out.push_back(matched+getStackValues());
             }
         }
         else
@@ -137,7 +142,6 @@ void ParserOutput::run()
         }
     }
     csvFile<<"\n";
-    out.push_back(matched+getStackValues());
     run();
 }
 LexicalAnalyzer::tokenGenerator ParserOutput::getT(){
