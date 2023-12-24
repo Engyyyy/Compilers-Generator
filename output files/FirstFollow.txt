@@ -1,0 +1,35 @@
+FIRST(ASSIGNMENT): { id }
+FIRST(DECLARATION): { int float }
+FIRST(EXPRESSION): { + - id num ( }
+FIRST(EXPRESSION"): {  relop }
+FIRST(FACTOR): { id num ( }
+FIRST(IF): { if }
+FIRST(METHOD_BODY): { if id int float while }
+FIRST(PRIMITIVE_TYPE): { int float }
+FIRST(SIGN): { + - }
+FIRST(SIMPLE_EXPRESSION): { + - id num ( }
+FIRST(SIMPLE_EXPRESSION'): { addop  }
+FIRST(STATEMENT): { if id int float while }
+FIRST(STATEMENT_LIST): { if id int float while }
+FIRST(STATEMENT_LIST'): { if id  int float while }
+FIRST(TERM): { id num ( }
+FIRST(TERM'): { mulop  }
+FIRST(WHILE): { while }
+
+FOllOW(ASSIGNMENT): { $ } if id int float while }
+FOllOW(DECLARATION): { } if id int float while }
+FOllOW(EXPRESSION): { ; ) }
+FOllOW(EXPRESSION"): { ; ) }
+FOllOW(FACTOR): { mulop addop relop ; ) }
+FOllOW(IF): { } if id int float while }
+FOllOW(METHOD_BODY): { }
+FOllOW(PRIMITIVE_TYPE): { id }
+FOllOW(SIGN): { }
+FOllOW(SIMPLE_EXPRESSION): { relop ; ) }
+FOllOW(SIMPLE_EXPRESSION'): { relop ; ) }
+FOllOW(STATEMENT): { } if id int float while }
+FOllOW(STATEMENT_LIST): { }
+FOllOW(STATEMENT_LIST'): { }
+FOllOW(TERM): { addop relop ; ) }
+FOllOW(TERM'): { addop relop ; ) }
+FOllOW(WHILE): { } if id int float while }

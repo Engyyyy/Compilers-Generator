@@ -1,0 +1,65 @@
+stack top ,input top , output 
+METHOD_BODY,int,METHOD_BODY --> STATEMENT_LIST
+STATEMENT_LIST,int,STATEMENT_LIST --> DECLARATION STATEMENT_LIST'
+DECLARATION,int,DECLARATION --> PRIMITIVE_TYPE id ;
+PRIMITIVE_TYPE,int,PRIMITIVE_TYPE --> int
+int,int,match " int "
+id,id,match " id "
+;,;,match " ; "
+STATEMENT_LIST',id,STATEMENT_LIST' --> STATEMENT STATEMENT_LIST'
+STATEMENT,id,STATEMENT --> ASSIGNMENT
+ASSIGNMENT,id,ASSIGNMENT --> id = EXPRESSION ;
+id,id,match " id "
+=,assign,Error: missing = .. inserte it to input 
+=,=,match " = "
+EXPRESSION,num,EXPRESSION --> SIMPLE_EXPRESSION EXPRESSION"
+SIMPLE_EXPRESSION,num,SIMPLE_EXPRESSION --> TERM SIMPLE_EXPRESSION'
+TERM,num,TERM --> num TERM'
+num,num,match " num "
+TERM',;,TERM' --> Epsilon 
+SIMPLE_EXPRESSION',;,SIMPLE_EXPRESSION' --> Epsilon 
+EXPRESSION",;,EXPRESSION" --> Epsilon 
+;,;,match " ; "
+STATEMENT_LIST',if,STATEMENT_LIST' --> STATEMENT STATEMENT_LIST'
+STATEMENT,if,STATEMENT --> IF
+IF,if,IF --> if ( EXPRESSION ) { STATEMENT } else { STATEMENT }
+if,if,match " if "
+(,(,match " ( "
+EXPRESSION,id,EXPRESSION --> SIMPLE_EXPRESSION EXPRESSION"
+SIMPLE_EXPRESSION,id,SIMPLE_EXPRESSION --> TERM SIMPLE_EXPRESSION'
+TERM,id,TERM --> id TERM'
+id,id,match " id "
+TERM',relop,TERM' --> Epsilon 
+SIMPLE_EXPRESSION',relop,SIMPLE_EXPRESSION' --> Epsilon 
+EXPRESSION",relop,EXPRESSION" --> relop SIMPLE_EXPRESSION
+relop,relop,match " relop "
+SIMPLE_EXPRESSION,num,SIMPLE_EXPRESSION --> TERM SIMPLE_EXPRESSION'
+TERM,num,TERM --> num TERM'
+num,num,match " num "
+TERM',),TERM' --> Epsilon 
+SIMPLE_EXPRESSION',),SIMPLE_EXPRESSION' --> Epsilon 
+),),match " ) "
+{,{,match " { "
+STATEMENT,id,STATEMENT --> ASSIGNMENT
+ASSIGNMENT,id,ASSIGNMENT --> id = EXPRESSION ;
+id,id,match " id "
+=,assign,Error: missing = .. inserte it to input 
+=,=,match " = "
+EXPRESSION,num,EXPRESSION --> SIMPLE_EXPRESSION EXPRESSION"
+SIMPLE_EXPRESSION,num,SIMPLE_EXPRESSION --> TERM SIMPLE_EXPRESSION'
+TERM,num,TERM --> num TERM'
+num,num,match " num "
+TERM',;,TERM' --> Epsilon 
+SIMPLE_EXPRESSION',;,SIMPLE_EXPRESSION' --> Epsilon 
+EXPRESSION",;,EXPRESSION" --> Epsilon 
+;,;,match " ; "
+},},match " } "
+else,$,Error: missing else .. inserte it to input 
+else,else,match " else "
+{,$,Error: missing { .. inserte it to input 
+{,{,match " { "
+STATEMENT,$,Error: sync STATEMENT
+},$,Error: missing } .. inserte it to input 
+},},match " } "
+STATEMENT_LIST',$,STATEMENT_LIST' --> Epsilon 
+$,$,accept
