@@ -11,6 +11,10 @@
 
 using namespace std;
 using namespace LexicalAnalyzer;
+InputParser::InputParser(string inputPath)
+{
+	inPath = inputPath;
+}
 
 void InputParser::preprocessKeywords(string line)
 {
@@ -347,11 +351,6 @@ void InputParser::handleRegEx(string line, int colonIdx)
 	nfas.push_back(nfa);
 	priorityStrings[p] = name;
 	i_reg++;
-}
-
-InputParser::InputParser(string inputPath)
-{
-	inPath = inputPath;
 }
 
 void InputParser::handleKeywords(string line)

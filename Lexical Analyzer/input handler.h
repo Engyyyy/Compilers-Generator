@@ -30,13 +30,8 @@ namespace LexicalAnalyzer
         std::vector<int> tp;
 
         void read();
-
-        bool match(std::string str);
-
         void matchAllSplitTokens();
-
-        bool match2(std::string str, bool isError);
-        void match3(std::string str, bool isError);
+        void match(std::string str, bool isError);
 
     public:
         tokenGenerator(const std::map<int, std::string> &prio,
