@@ -12,6 +12,10 @@ using namespace Parser;
 GrammarParser::GrammarParser(string inPath)
 {
     parse(inPath);
+    for (auto terminal : terminalsSet)
+    {
+        terminals.push_back(terminal);
+    }
     assert(verifyCompleteGrammar());
     eliminateLeftRecursion();
     leftFactor();
@@ -197,7 +201,7 @@ void GrammarParser::leftFactor()
 
 bool GrammarParser::verifyCompleteGrammar()
 {
-    for (auto nonTerminal : usedNonTerminals)
+    for (auto nonTerminal : usedNonTerminalsSet)
     {
         if (!derivedNonTerminalsSet.count(nonTerminal))
         {
@@ -303,12 +307,12 @@ void GrammarParser::parse(string inPath)
             if (isTerminal(token))
             {
                 token = token.substr(1, token.size() - 2);
-                terminals.push_back(token);
+                terminalsSet.insert(token);
                 rule.push_back(token);
             }
             else
             {
-                usedNonTerminals.push_back(token);
+                usedNonTerminalsSet.insert(token);
                 rule.push_back(token);
             }
         }

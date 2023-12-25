@@ -15,11 +15,10 @@ namespace Parser
     private:
         vector<string> terminals;
         vector<string> nonTerminals;
-        vector<string> usedNonTerminals;
         map<string, vector<vector<string>>> productions;
         map<string, vector<string>> formattedProds;
         string startSymbol;
-        set<string> derivedNonTerminalsSet;
+        set<string> derivedNonTerminalsSet, usedNonTerminalsSet, terminalsSet;
         void parse(string inPath);
         bool isTerminal(string token);
         bool verifyCompleteGrammar();
