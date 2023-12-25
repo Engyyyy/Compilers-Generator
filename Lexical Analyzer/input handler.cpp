@@ -49,8 +49,9 @@ string tokenGenerator::getNext()
     if (!splitTokens.empty())
     {
         match(splitTokens[0], false);
-
-        return tokens[tokens.size() - 1];
+        string s = tokens[tokens.size() - 1];
+        if(s=="assign") s="=";
+        return s;
     }
     else
         return "$";
