@@ -47,6 +47,7 @@ int main() {
     string grammerPath = ".\\input files\\grammer.txt";
     GrammarParser grammarParser(grammerPath);
     vector<std::string> terminals = grammarParser.getTerminals();
+    terminals.push_back("$");    
     vector<std::string> nonTerminals = grammarParser.getNonTerminals();
     map<std::string, std::vector<std::string>> CFG = grammarParser.getProductions();
     string start = grammarParser.getStartSymbol();
