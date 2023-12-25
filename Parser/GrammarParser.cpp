@@ -175,23 +175,7 @@ void GrammarParser::eliminateLeftRecursion()
 
 void GrammarParser::leftFactor()
 {
-    // for (auto nT : nonTerminals)
-    // {
-    //     vector<vector<string>> rules = productions[nT];
-    //     int i = 0;
-    //     while (i < rules.size())
-    //     {
-    //         vector<string> &rule = rules[i];
-    //         if (terminalsSet.count(rule[0]))
-    //             i++;
-    //         else
-    //         {
-    //             vector<vector<string>> substitution = productions[rule[0]];
-    //             substitute(rule, rules, substitution);
-    //         }
-    //     }
-    //     productions[nT] = rules;
-    // }
+
     for (int i = 0; i < nonTerminals.size(); i++)
     {
         string nT = nonTerminals[i];
@@ -361,33 +345,3 @@ map<string, vector<string>> GrammarParser::getProductions()
 {
     return formattedProds;
 }
-
-// int main()
-// {
-//     GrammarParser grammarParser("input files/grammer.txt");
-//     for (auto p : grammarParser.getProductions())
-//     {
-//         cout << p.first << " -> ";
-//         vector<string> rules = p.second;
-//         for (int i = 0; i < rules.size(); i++)
-//         {
-//             string rule = rules[i];
-//             if (rule.empty())
-//             {
-//                 cout << "EPSILON";
-//             }
-//             cout << rule;
-//             if (i < rules.size() - 1)
-//                 cout << " | ";
-//         }
-//         cout << endl;
-//     }
-//     cout << "_____________________________________________________________________" << endl;
-//     for (auto t : grammarParser.getTerminals())
-//         cout << t << " ";
-//     cout << endl;
-//     for (auto nt : grammarParser.getNonTerminals())
-//         cout << nt << " ";
-//     cout << endl;
-//     cout << grammarParser.getStartSymbol();
-// }
