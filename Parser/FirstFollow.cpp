@@ -31,13 +31,12 @@ map<string, vector<string>> FirstFollow::computeFirstSets() {
     while (changes) {
         changes = false;
 
-        // For each production rule X -> α
-        for (const auto& rule : CFG) {
-            string nonTerminal = rule.first;
-            for (const string& production : rule.second) {
+        // Loop through each non-terminal symbol
+        for (const string& nonTerminal : nonTerminals) {
+            // For each production rule X -> α in CFG[nonTerminal]
+            for (const string& production : CFG[nonTerminal]) {
                 size_t i = 0;
                 bool allDeriveEpsilon = true;
-
 
                 // Iterate through symbols in the production
                 while (i < production.size()) {
@@ -86,16 +85,16 @@ map<string, vector<string>> FirstFollow::computeFirstSets() {
                 // Rule 2.2 continued: Check if epsilon should be in FIRST(X)
                 if (allDeriveEpsilon && find(first[nonTerminal].begin(), first[nonTerminal].end(), Epsilon) == first[nonTerminal].end()) {
                     first[nonTerminal].emplace_back(Epsilon);
-                    first_complementary[nonTerminal].push_back(production); 
+                    first_complementary[nonTerminal].push_back(production);
                     changes = true;
                 }
             }
-
         }
     }
 
     return first;
 }
+
 
 map<string, vector<string>> FirstFollow ::computeFollowSets()
 {
@@ -115,10 +114,9 @@ map<string, vector<string>> FirstFollow ::computeFollowSets()
         changes = false;
 
         // For each production rule A -> αBβ
-        for (const auto &rule : CFG)
+        for (const string& nonTerminal : nonTerminals)
         {
-            string nonTerminal = rule.first;
-            for (const string &production : rule.second)
+            for (const string& production : CFG[nonTerminal])
             {
                 size_t i = 0;
                 while (i < production.size())
@@ -214,21 +212,21 @@ map<string, vector<string>> FirstFollow ::computeFollowSets()
 // {
 //     // Create an instance of the LL1Grammar class
 //     FirstFollow grammar;
-
+//
 //     cout << "Test Example one" << endl ;
-
+//
 //     // Define your grammar rules here
 //     grammar.terminals = {"+", "*", ")", "(", "id"};
 //     grammar.nonTerminals = {"E", "E'", "T", "T'", "F"};
 //     grammar.CFG = {
-//             {"E", {"T E'" , "T' E'"}},
 //             {"E'", {"+ T E'", ""}},
-//             {"T", {"F T'"}},
+//             {"E", {"T E'"}},
 //             {"T'", {"* F T'", ""}},
+//             {"T", {"F T'"}},
 //             {"F", {"( E )", "id"}}
 //     };
 //     map<string, vector<string>> firstSets = grammar.computeFirstSets();
-
+//
 //     for (const auto& pair : grammar.first_complementary) {
 //         cout << "FIRST_Complementary(" << pair.first << "): { ";
 //         for (const string& s : pair.second) {
@@ -237,7 +235,7 @@ map<string, vector<string>> FirstFollow ::computeFollowSets()
 //         cout << "}\n";
 //     }
 //     cout << "\n";
-
+//
 //     for (const auto& pair : firstSets) {
 //         cout << "FIRST(" << pair.first << "): { ";
 //         for (const string& s : pair.second) {
@@ -246,11 +244,11 @@ map<string, vector<string>> FirstFollow ::computeFollowSets()
 //         cout << "}\n";
 //     }
 //     cout << "\n";
-
-
+//
+//
 //     // Calculate FOLLOW sets
 //     map<string, vector<string>> followSets = grammar.computeFollowSets();
-
+//
 //     for (const auto& pair : followSets) {
 //         cout << "FOllOW(" << pair.first << "): { ";
 //         for (const string& s : pair.second) {
@@ -260,6 +258,6 @@ map<string, vector<string>> FirstFollow ::computeFollowSets()
 //     }
 //     cout << "\n";
 //     cout << "-----------------------------------"<<endl;
-
+//
 //     return 0;
 // }
