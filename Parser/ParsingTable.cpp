@@ -19,21 +19,16 @@ fir(first),fol(follow)
         for (int i=0;i<pair.second.size();i++) {
             if (pair.second[i] != "") {
                 table[make_pair(pair.first, pair.second[i])].push_back(comp[pair.first][i]) ;
-            } else {
+            }
+            else {
                 sync= false;
                 for(const auto& s : follow[pair.first]) {
                     if (!table[make_pair(pair.first, s)].empty()) {
-                        string ss = table[make_pair(pair.first, s)][0];
-                        if(ss!="sync"){
-                            valid = false; // not LL1
+                        valid = false; // not LL1
                         table.clear();
-                        return;
-                        }
-                        else
-                          table[make_pair(pair.first, s)][0]=comp[pair.first][i];
-                          
+                        return; 
                     }
-                    else table[make_pair(pair.first, s)].push_back(comp[pair.first][i]);
+                    else table[make_pair(pair.first, s)].push_back("");
                 }
             }
         }

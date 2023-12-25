@@ -26,13 +26,9 @@ ParserOutput::ParserOutput(vector<string> term, vector<string> nonterm, string s
 {
     st.push("$");
     st.push(start);
-    getNextInput();
-    auto it = find(terminals.begin(), terminals.end(), "$");
-    if (!(it != terminals.end()))
-    {
-        terminals.push_back("$");
-    }
+    getNextInput();    
     csvFile<<"stack top ,input top , output \n";
+    out.push_back(start);
     run();
 }
 
@@ -76,22 +72,32 @@ void ParserOutput::run()
     {
         if (st_f == in_f && in_f == "$"){
             csvFile<<"accept";
+            out.push_back("accept");
             return;
         }
         else if (st_f == in_f)
         {
             csvFile<<"match \" "<<st_f<<" \"";
+            matched+=st_f;
+            matched+=" ";
             st.pop();
             inputs.pop();
             getNextInput();
-            matched+=st_f;
-            matched+=" ";
         }
         else
         {
+
             // report error
-            csvFile<<"Error: missing "<<st_f<<" .. inserte it to input ";
-            inputs.push(st_f);
+            csvFile<<"Error: missing "<<st_f<<" .. pop from stack ";
+            out.push_back("--> Error: missing "+st_f+" .. Delete it ");
+            st.pop();
+            out.push_back(matched+getStackValues());
+
+
+            // report error
+            // csvFile<<"Error: missing "<<st_f<<" .. inserte it to input ";
+            // out.push_back("--> Error: missing "+st_f+" .. inserte it to input ");
+            // inputs.push(st_f);
         }
     }
     else
@@ -105,6 +111,7 @@ void ParserOutput::run()
             {
                 // report error
                 csvFile<<"Error: sync "<<st_f;
+                out.push_back("--> Error: sync "+st_f);
                 st.pop();
                 out.push_back(matched+getStackValues());
 
@@ -135,6 +142,7 @@ void ParserOutput::run()
         else
         {
             csvFile<<"Error:(illegal "<<st_f<<" ) : discard " <<in_f;
+            out.push_back("--> Error:(illegal "+st_f+" ) : discard " +in_f);
             inputs.pop();
             if(in_f!="$")
               getNextInput();
