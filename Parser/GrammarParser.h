@@ -15,10 +15,11 @@ namespace Parser
     private:
         vector<string> terminals;
         vector<string> nonTerminals;
+        vector<string> usedNonTerminals;
         map<string, vector<vector<string>>> productions;
         map<string, vector<string>> formattedProds;
         string startSymbol;
-        set<string> terminalsSet, derivedNonTerminalsSet, usedNonTerminalsSet;
+        set<string> derivedNonTerminalsSet;
         void parse(string inPath);
         bool isTerminal(string token);
         bool verifyCompleteGrammar();
@@ -28,6 +29,7 @@ namespace Parser
         void leftFactorStep(string Ai, vector<vector<string>> AiRules);
         void substitute(vector<string> &rule, vector<vector<string>> &allRules, vector<vector<string>> &substitution);
         void formatProductions();
+        void writeGrammarToFile();
 
     public:
         vector<string> getTerminals();
@@ -35,7 +37,7 @@ namespace Parser
         string getStartSymbol();
         map<string, vector<string>> getProductions();
         GrammarParser(string inPath);
-        
+
         void parse();
     };
 }

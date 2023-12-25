@@ -2,6 +2,7 @@
 #include <fstream>
 #include <assert.h>
 #include <set>
+#include <algorithm>
 
 #include "GrammarParser.h"
 
@@ -12,14 +13,33 @@ GrammarParser::GrammarParser(string inPath)
 {
     parse(inPath);
     assert(verifyCompleteGrammar());
-    for (auto terminal : terminalsSet)
-        terminals.push_back(terminal);
-    for (auto nonTerminal : derivedNonTerminalsSet)
-        nonTerminals.push_back(nonTerminal);
-
     eliminateLeftRecursion();
     leftFactor();
     formatProductions();
+    writeGrammarToFile();
+}
+
+void GrammarParser::writeGrammarToFile()
+{
+    ofstream outFile("output files/LL1 grammar.txt");
+    for (auto p : formattedProds)
+    {
+        outFile << p.first << " -> ";
+        vector<string> rules = p.second;
+        for (int i = 0; i < rules.size(); i++)
+        {
+            string rule = rules[i];
+            if (rule.empty())
+            {
+                outFile << "EPSILON";
+            }
+            outFile << rule;
+            if (i < rules.size() - 1)
+                outFile << " | ";
+        }
+        outFile << endl;
+    }
+    outFile.close();
 }
 
 void GrammarParser::eliminateLeftRecursionStep(string Ai, vector<vector<string>> AiRules)
@@ -61,14 +81,23 @@ void GrammarParser::eliminateLeftRecursionStep(string Ai, vector<vector<string>>
     vector<string> epsilonRule = {""};
     newNonTerminalRules.push_back(epsilonRule);
     productions[newNonTerminal] = newNonTerminalRules;
-    nonTerminals.push_back(newNonTerminal);
+
+    // add Ai' immediately after Ai
+    int AiIndex = find(nonTerminals.begin(), nonTerminals.end(), Ai) - nonTerminals.begin();
+    assert(AiIndex < nonTerminals.size());
+    nonTerminals.insert(nonTerminals.begin() + AiIndex + 1, newNonTerminal);
 }
 
 void GrammarParser::leftFactorStep(string Ai, vector<vector<string>> AiRules)
 {
     vector<vector<string>> newAiRules;
-    string newNonTerminal = Ai;
+    string newNonTerminal = Ai + "\"";
     map<string, vector<vector<string>>> groups;
+
+    int AiIndex = find(nonTerminals.begin(), nonTerminals.end(), Ai) - nonTerminals.begin();
+    assert(AiIndex < nonTerminals.size());
+
+    int numNewNonTerminals = 0;
     for (auto AiRule : AiRules)
     {
         string start = AiRule[0];
@@ -80,7 +109,8 @@ void GrammarParser::leftFactorStep(string Ai, vector<vector<string>> AiRules)
         vector<vector<string>> commonStartRules = group.second;
         if (commonStartRules.size() > 1)
         {
-            newNonTerminal += "\"";
+            numNewNonTerminals++;
+            newNonTerminal += to_string(numNewNonTerminals);
             vector<string> LL1Rule = {start, newNonTerminal};
             newAiRules.push_back(LL1Rule);
 
@@ -94,7 +124,9 @@ void GrammarParser::leftFactorStep(string Ai, vector<vector<string>> AiRules)
                 newNonTerminalRules.push_back(newRule);
             }
             productions[newNonTerminal] = newNonTerminalRules;
-            nonTerminals.push_back(newNonTerminal);
+
+            // add Ai' immediately after Ai
+            nonTerminals.insert(nonTerminals.begin() + AiIndex + numNewNonTerminals, newNonTerminal);
         }
         else
         {
@@ -156,15 +188,16 @@ void GrammarParser::leftFactor()
     //     }
     //     productions[nT] = rules;
     // }
-    for (auto nT : nonTerminals)
+    for (int i = 0; i < nonTerminals.size(); i++)
     {
+        string nT = nonTerminals[i];
         leftFactorStep(nT, productions[nT]);
     }
 }
 
 bool GrammarParser::verifyCompleteGrammar()
 {
-    for (auto nonTerminal : usedNonTerminalsSet)
+    for (auto nonTerminal : usedNonTerminals)
     {
         if (!derivedNonTerminalsSet.count(nonTerminal))
         {
@@ -239,6 +272,7 @@ void GrammarParser::parse(string inPath)
             rules.clear();
             expectRule = true;
             derivedNonTerminalsSet.insert(currNonTerminal);
+            nonTerminals.push_back(currNonTerminal);
         }
         else if (token == "|")
         {
@@ -269,12 +303,12 @@ void GrammarParser::parse(string inPath)
             if (isTerminal(token))
             {
                 token = token.substr(1, token.size() - 2);
-                terminalsSet.insert(token);
+                terminals.push_back(token);
                 rule.push_back(token);
             }
             else
             {
-                usedNonTerminalsSet.insert(token);
+                usedNonTerminals.push_back(token);
                 rule.push_back(token);
             }
         }
@@ -323,3 +357,33 @@ map<string, vector<string>> GrammarParser::getProductions()
 {
     return formattedProds;
 }
+
+// int main()
+// {
+//     GrammarParser grammarParser("input files/grammer.txt");
+//     for (auto p : grammarParser.getProductions())
+//     {
+//         cout << p.first << " -> ";
+//         vector<string> rules = p.second;
+//         for (int i = 0; i < rules.size(); i++)
+//         {
+//             string rule = rules[i];
+//             if (rule.empty())
+//             {
+//                 cout << "EPSILON";
+//             }
+//             cout << rule;
+//             if (i < rules.size() - 1)
+//                 cout << " | ";
+//         }
+//         cout << endl;
+//     }
+//     cout << "_____________________________________________________________________" << endl;
+//     for (auto t : grammarParser.getTerminals())
+//         cout << t << " ";
+//     cout << endl;
+//     for (auto nt : grammarParser.getNonTerminals())
+//         cout << nt << " ";
+//     cout << endl;
+//     cout << grammarParser.getStartSymbol();
+// }
